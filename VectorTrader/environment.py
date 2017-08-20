@@ -6,19 +6,29 @@ Created on Sun Aug 20 14:27:13 2017
 """
 
 # environment.py
+from events import EventBus
 
 class Environment():
     _env = None
     
-    def __init__(self):
+    def __init__(self,config):
         Environment._env = self
         
+        self.config = config # 用户定义策略基本配置
+        
+        self.event_bus = EventBus()
         self.event_source = None
         self.data_source = None
         self.data_proxy = None
         
         self.calendar_dt = None
         self.trading_dt = None
+        
+        self.start_date = None
+        self.end_date = None
+        self.frequency = None
+        self.capital = None
+        self.universe = None
         
     @classmethod
     def get_instance(cls):

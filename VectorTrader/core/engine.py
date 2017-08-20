@@ -6,8 +6,19 @@ Created on Sun Aug 20 14:07:01 2017
 """
 
 # engine.py
-from ..events import EVENT
+from ..events import EVENT,Event
 
+PRE_BEFORE_TRADING = Event(EVENT.PRE_BEFORE_TRADING)
+POST_BEFORE_TRADING = Event(EVENT.POST_BEFORE_TRADING)
+
+PRE_BAR = Event(EVENT.PRE_BAR)
+POST_BAR = Event(EVENT.POST_BAR)
+
+PRE_AFTER_TRADING = Event(EVENT.PRE_AFTER_TRADING)
+POST_AFTER_TRADING = Event(EVENT.POST_AFTER_TRADING)
+
+PRE_SETTLEMENT = Event(EVENT.PRE_SETTLEMENT)
+POST_SETTLEMENT = Event(EVENT.POST_SETTLEMENT)
 
 class Engine():
     
@@ -17,12 +28,32 @@ class Engine():
         '''
         self.env = env
         
-    def run(self,start_date,end_date,frequency):
+    def run(self):
         '''
         启动引擎。
         '''
+        start_date = self.env.start_date
+        end_date = self.env.end_date
+        frequency = self.env.frequency
+        
         for event in self.env.event_source(start_date,
                                            end_date,
                                            frequency):
-            
-        
+            if event.event_type == EVENT.BEFORE_TRADING:
+                self.env.event_bus.publish(PRE_BEFORE_TRADING)
+                self.env.event_bus.publish(event)
+                self.env.event_bus.publish(POST_BEFORE_TRADING)
+            elif event.event_type == EVENT.BAR:
+                self.env.event_bus.publish(PRE_BAR)
+                self.env.event_bus.publish(event)
+                self.env.event_bus.publish(POST_BAR)               
+            elif event.event_type == EVENT.AFTER_TRADING:
+                self.env.event_bus.publish(PRE_AFTER_TRADING)
+                self.env.event_bus.publish(event)
+                self.env.event_bus.publish(POST_AFTER_TRADING)  
+            elif event.event_type == EVENT.SETTLEMENT:
+                self.env.event_bus.publish(PRE_SETTLEMENT)
+                self.env.event_bus.publish(event)
+                self.env.event_bus.publish(POST_SETTLEMENT)  
+            else:
+                self.env.event_bus.publish(event)
