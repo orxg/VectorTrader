@@ -19,10 +19,9 @@ def order(ticker,amount,direction,order_price = None):
     calendar_dt = env.calendar_dt
     if order_price is None:
         ## XXX : 现在用data_proxy的方式速度堪忧
-        current_price_df = env.data_proxy.get_history(ticker,
-                                                     calendar_dt,
-                                                     calendar_dt)
-        open_price = current_price_df['open_price'][0]
+        bar = env.data_proxy.get_bar(calendar_dt,ticker,
+                                                     env.frequency)
+        open_price = bar.open_price
         order_price = open_price
         
     order_obj = Order(env.trading_dt,ticker,amount,direction,order_price)

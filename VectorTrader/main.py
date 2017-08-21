@@ -23,10 +23,12 @@ from core.context import Context
 
 from data.data_proxy import DataProxy
 
+from module.bar import BarMap
+
 from mod import ModHandler
 from utils.create_base_scope import create_base_scope
 
-def all_system_go(config,strategy_path):
+def all_system_go(config,strategy_path,mode = 'b'):
     '''
     主程序。启动回测/模拟/实盘。
     
@@ -36,6 +38,8 @@ def all_system_go(config,strategy_path):
             用户策略配置
         strategy_path
             策略路径
+        mode
+            模式 'b','p','r'
     '''
     env = Environment(config)
     
@@ -64,12 +68,10 @@ def all_system_go(config,strategy_path):
     mod_handler.start_up()
     
     if not env.data_proxy:
-        env.set_data_proxy(DataProxy(env.data_source))
+        env.set_data_proxy(DataProxy(env.data_source,mode = mode))
     
-    ## 回测模式下准备数据
-    print 'Loading Data...'
-    env.data_proxy.load_trading_data(universe,start_date,end_date)
-    print 'Loading Data Successfully'
+    bar_map = BarMap(env.data_proxy,frequency)
+    env.set_bar_map(bar_map)
     
     ## 初始化策略
     user_context = Context()

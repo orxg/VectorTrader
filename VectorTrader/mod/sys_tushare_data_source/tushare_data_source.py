@@ -11,7 +11,9 @@ Created on Sun Aug 20 14:56:01 2017
 import pymysql
 import pandas as pd
 
-class TushareDataSource():
+from ...interface import AbstractDataSource
+
+class TushareDataSource(AbstractDataSource):
     '''
     基于tushare的数据源接口。
     '''
@@ -33,9 +35,9 @@ class TushareDataSource():
                 self.passwd,
                 self.db)
         
-    def get_daily_trading_data(self,ticker,start_date,end_date):
+    def get_history(self,ticker,start_date,end_date,frequency):
         '''
-        获取日间交易数据。
+        获取交易数据。
         Parameters
         -----------
             ticker
@@ -53,6 +55,10 @@ class TushareDataSource():
                     open_price,high_price,low_price,close_price,volume(前复权)
                 
         '''
+        
+        if frequency != '1d':
+            raise NotImplementedError('just support daily data now!')
+        
         sql = '''
         SELECT dp.date_time,dp.open_price,
         dp.high_price,dp.low_price,dp.close_price,
@@ -70,8 +76,7 @@ class TushareDataSource():
         daily_price_df = pd.read_sql(sql,self.con,parse_dates = ['date_time'])
         daily_price_df = daily_price_df.set_index('date_time')
         trade_calendar_days = self.get_calendar_days(start_date,end_date)
-        trade_calendar_days_series = pd.Series(trade_calendar_days)
-        daily_price_df = daily_price_df.reindex(trade_calendar_days_series,
+        daily_price_df = daily_price_df.reindex(trade_calendar_days,
                                                 method = 'pad')
         
         return daily_price_df
@@ -82,8 +87,10 @@ class TushareDataSource():
         获取交易日历
         Returns
         -------
-            list [pd.Timestamp]
+            Series [pd.Timestamp]
         '''
         sql = 'SELECT date from tradedates'
         dates = pd.read_sql(sql,self.con,parse_dates = ['date'])['date']
-        return dates[start_date:end_date].tolist()
+        return dates[start_date:end_date]
+
+    
