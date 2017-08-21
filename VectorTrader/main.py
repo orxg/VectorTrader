@@ -19,10 +19,11 @@ from environment import Environment
 from core.engine import Engine
 from core.strategy import Strategy
 from core.strategy_loader import StrategyLoader
+from core.context import Context
 
 from data.data_proxy import DataProxy
 
-from mod.sys_tushare_data_source.tushare_data_source import TushareDataSource
+from mod import ModHandler
 from utils.create_base_scope import create_base_scope
 
 def all_system_go(config,strategy_path):
@@ -57,19 +58,22 @@ def all_system_go(config,strategy_path):
     strategy_loader = StrategyLoader(strategy_path)
     scope = strategy_loader.load(scope)
     
-    ## 初始化数据
-    if not env.data_source:
-        env.set_data_source(TushareDataSource())
+    ## 初始化数据源、事件源，确定功能类型
+    mod_handler = ModHandler()
+    mod_handler.set_env(env)
+    mod_handler.start_up()
+    
     if not env.data_proxy:
         env.set_data_proxy(DataProxy(env.data_source))
     
+    ## 回测模式下准备数据
     print 'Loading Data...'
     env.data_proxy.load_trading_data(universe,start_date,end_date)
     print 'Loading Data Successfully'
     
-    ## 初始化
-    
-    
+    ## 初始化策略
+    user_context = Context()
+    strategy = Strategy(env,scope,user_context)
     
     # 启动引擎
     Engine(env).run()

@@ -61,5 +61,10 @@ class EVENT(Enum):
     SETTLEMENT = 'settlement'
     POST_SETTLEMENT = 'post_settlement'
     
+    # 订单事件
+    ORDER = 'order'
     
-            
+    # 订单反馈
+    FILL_ORDER = 'fill_order'
+    
+           

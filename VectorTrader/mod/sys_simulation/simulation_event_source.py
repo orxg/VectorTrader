@@ -23,21 +23,21 @@ class SimulationEventSource():
             for day in calendar_days:
                 date = day.to_pydatetime()
                 dt_before_trading = date.replace(hour=0,minute=0)
-                dt_bar = date.replace(hour=15,minute=0)
+                dt_bar = date.replace(hour=9,minute=30)
                 dt_after_trading = date.replace(hour=15,minute=30)
                 dt_settlement = date.replace(hour=19,minute=0)
                 
                 yield Event(EVENT.BEFORE_TRADING,
-                            calendar_dt = dt_before_trading,
+                            calendar_dt = date,
                             trading_dt = dt_before_trading)
                 yield Event(EVENT.BAR,
-                            calendar_dt = dt_bar,
+                            calendar_dt = date,
                             trading_dt = dt_bar)
                 yield Event(EVENT.AFTER_TRADING,
-                            calendar_dt = dt_after_trading,
+                            calendar_dt = date,
                             trading_dt = dt_after_trading)
                 yield Event(EVENT.SETTLEMENT,
-                            calendar_dt = dt_settlement,
+                            calendar_dt = date,
                             trading_dt = dt_settlement)
                 
             

@@ -39,6 +39,10 @@ class Engine():
         for event in self.env.event_source(start_date,
                                            end_date,
                                            frequency):
+            
+            self.env.calendar_dt = event.calendar_dt
+            self.env.trading_dt = event.trading_dt
+            
             if event.event_type == EVENT.BEFORE_TRADING:
                 self.env.event_bus.publish(PRE_BEFORE_TRADING)
                 self.env.event_bus.publish(event)
@@ -55,5 +59,4 @@ class Engine():
                 self.env.event_bus.publish(PRE_SETTLEMENT)
                 self.env.event_bus.publish(event)
                 self.env.event_bus.publish(POST_SETTLEMENT)  
-            else:
-                self.env.event_bus.publish(event)
+            

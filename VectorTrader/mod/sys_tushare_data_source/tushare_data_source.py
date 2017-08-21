@@ -7,6 +7,7 @@ Created on Sun Aug 20 14:56:01 2017
 
 # tushare_data_source.py
 
+
 import pymysql
 import pandas as pd
 
@@ -67,8 +68,15 @@ class TushareDataSource():
         end_date = end_date)
         
         daily_price_df = pd.read_sql(sql,self.con,parse_dates = ['date_time'])
+        daily_price_df = daily_price_df.set_index('date_time')
+        trade_calendar_days = self.get_calendar_days(start_date,end_date)
+        trade_calendar_days_series = pd.Series(trade_calendar_days)
+        daily_price_df = daily_price_df.reindex(trade_calendar_days_series,
+                                                method = 'pad')
+        
         return daily_price_df
     
+    ## TODO : 相同参数多次调用用functools加速
     def get_calendar_days(self,start_date,end_date):
         '''
         获取交易日历
