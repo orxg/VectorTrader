@@ -1,3 +1,6 @@
 Anaconda2-4.4.0
 mysqlclient-1.3.10
+pymysql-0.7.11
 tushare
+
+向site-packages中添加VectorTrader路径文件pth.

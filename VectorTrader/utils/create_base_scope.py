@@ -6,10 +6,9 @@ Created on Sun Aug 20 21:18:59 2017
 """
 
 # create_base_scope.py
-
-from .. import user_base_scope
+import copy
 
 def create_base_scope():
-    import copy
+    from .. import user_base_scope
     scope = copy.copy(user_base_scope.__dict__)
     return scope

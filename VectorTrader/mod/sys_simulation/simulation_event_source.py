@@ -6,14 +6,14 @@ Created on Sun Aug 20 14:25:40 2017
 """
 
 # simulation_event_source.py
-from ...events import Event,EVENT
+from VectorTrader.events import Event,EVENT
 
 class SimulationEventSource():
     
     def __init__(self,env):
         self.env = env
     
-    def event_source(self,start_date,end_date,frequency):
+    def events(self,start_date,end_date,frequency):
         '''
         事件流。
         '''

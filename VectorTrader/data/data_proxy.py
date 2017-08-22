@@ -49,7 +49,7 @@ class DataProxy():
         frequency = env.frequency
         
         # 回测专有数据
-        self._data = None
+        self._data = {}
         self._calendar_days = None
         
         self._calendar_days = self.data_source.get_calendar_days(start_date,
@@ -63,7 +63,8 @@ class DataProxy():
                    
     ## 回测/模拟/实盘 数据接口
     def get_bar(self,dt,ticker,frequency):
-        ## XXX: 效率似乎不高，总是执行loc
+        ## XXX: 效率似乎不高，总是执行loc,应该在initilize_backtest_data中将所有bar进行
+        ## 存储后再通过该函数调用
         if self.mode == 'b':
             bar = Bar(dt,ticker,frequency)
             price_board = self._data[ticker].loc[dt]
@@ -88,7 +89,7 @@ class DataProxy():
             list [pd.Timestamp]
         '''
         if self.mode == 'b':
-            return self._calendar_days[start_date:end_date].tolist()
+            return self._calendar_days[(self._calendar_days >= start_date) & (self._calendar_days <= end_date)].tolist()
         else:
             calendar_days = self.data_source.get_calendar_days(start_date,
                                                                end_date)

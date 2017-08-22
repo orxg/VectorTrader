@@ -7,8 +7,8 @@ Created on Mon Aug 21 13:23:37 2017
 
 # simulation_broker.py
 
-from ...events import EVENT,Event
-from ...module.orders import FillOrder
+from VectorTrader.events import EVENT,Event
+from VectorTrader.module.orders import FillOrder
 
 class SimulationBroker():
     def __init__(self,env):

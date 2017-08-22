@@ -15,18 +15,19 @@ config = {'base':
 
     
 # main.py
-from environment import Environment
-from core.engine import Engine
-from core.strategy import Strategy
-from core.strategy_loader import StrategyLoader
-from core.context import Context
-
-from data.data_proxy import DataProxy
-
-from module.bar import BarMap
-
-from mod import ModHandler
-from utils.create_base_scope import create_base_scope
+from .events import EVENT,Event
+from .environment import Environment
+from .core.engine import Engine
+from .core.strategy import Strategy
+from .core.strategy_loader import StrategyLoader
+from .core.context import Context
+from .data.data_proxy import DataProxy
+from .module.bar import BarMap
+from .module.account import Account
+from .module.analyser import Analyser
+from .mod import ModHandler
+from .utils.create_base_scope import create_base_scope
+from .api.helper import get_apis
 
 def all_system_go(config,strategy_path,mode = 'b'):
     '''
@@ -43,11 +44,11 @@ def all_system_go(config,strategy_path,mode = 'b'):
     '''
     env = Environment(config)
     
-    start_date = config.base.start_date
-    end_date = config.base.end_date
-    capital = config.base.capital
-    universe = config.base.universe
-    frequency = config.base.frequency
+    start_date = config['base']['start_date']
+    end_date = config['base']['end_date']
+    capital = config['base']['capital']
+    universe = config['base']['universe']
+    frequency = config['base']['frequency']
     
     # 初始化环境
     ## 环境基本参数
@@ -60,7 +61,10 @@ def all_system_go(config,strategy_path,mode = 'b'):
     ## 读取用户策略空间
     scope = create_base_scope()
     strategy_loader = StrategyLoader(strategy_path)
+    apis = get_apis()
+    scope.update(apis)
     scope = strategy_loader.load(scope)
+    print 'Successfully loaded the user\'s stategy scope'
     
     ## 初始化数据源、事件源，确定功能类型
     mod_handler = ModHandler()
@@ -72,14 +76,23 @@ def all_system_go(config,strategy_path,mode = 'b'):
     
     bar_map = BarMap(env.data_proxy,frequency)
     env.set_bar_map(bar_map)
+    env.set_account(Account(env,capital))
+    env.set_analyser(Analyser(env))
     
+    print 'Successfully initilized running environment'
     ## 初始化策略
     user_context = Context()
     strategy = Strategy(env,scope,user_context)
+    assert strategy is not None
+    print 'Strategy loaded complete'
     
     # 启动引擎
+    print 'The system is going to run'
+    env.event_bus.publish_event(Event(EVENT.STRATEGY_INITILIZE))
     Engine(env).run()
 
+    env.analyser.plot_pnl()
+    
 if __name__ == '__main__':
     
     config = {'base':

@@ -11,7 +11,7 @@ Created on Sun Aug 20 14:56:01 2017
 import pymysql
 import pandas as pd
 
-from ...interface import AbstractDataSource
+from VectorTrader.interface import AbstractDataSource
 
 class TushareDataSource(AbstractDataSource):
     '''
@@ -91,6 +91,8 @@ class TushareDataSource(AbstractDataSource):
         '''
         sql = 'SELECT date from tradedates'
         dates = pd.read_sql(sql,self.con,parse_dates = ['date'])['date']
-        return dates[start_date:end_date]
-
+        return dates[(dates >= start_date) & (dates <= end_date)]
+    
+if __name__ == '__main__':
+    tudata = TushareDataSource()
     

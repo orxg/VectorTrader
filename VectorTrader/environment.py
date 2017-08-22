@@ -46,3 +46,11 @@ class Environment():
     def set_bar_map(self,bar_map):
         self.bar_map = bar_map
         
+    def set_account(self,account):
+        self.account = account
+        
+    def set_analyser(self,analyser):
+        self.analyser = analyser
+        
+    def set_broker(self,broker):
+        self.broker = broker
