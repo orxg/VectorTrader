@@ -13,9 +13,7 @@ config = {'base':
      'frequency':'1d',
      'capital':100000,
      'universe':['600340']}}
-import sys
-sys.path.append('./VectorTrader/')
-sys.path.append('./VectorTrader/mod')
+
 from VectorTrader import run_file
 
 strategy_path = './test/test_buy_and_hold.py'

@@ -7,6 +7,4 @@ Created on Mon Aug 21 16:33:30 2017
 
 # __init__.py
 
-def load_mod():
-    from .mod import TushareDataSourceMOD
-    return TushareDataSourceMOD()
+

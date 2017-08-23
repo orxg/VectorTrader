@@ -37,7 +37,7 @@ class EventBus():
             
 class EVENT(Enum):
     # 系统初始化
-    SYSTEM_INIT = 'system_init'
+    SYSTEM_INITILIZE = 'system_initilize'
     
     # 策略初始化
     STRATEGY_INITILIZE = 'strategy_initilize'

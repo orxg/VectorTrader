@@ -9,9 +9,22 @@
 5. 易用的api
 
 # update log
+## 2017-08-23
+1. 加入进度条mod，在cmd模式下可以正常运行
+2. 加入了模拟交易mod,功能尚未测试
+3. 优化了mod管理
+
 ## 2017-08-22
 程序成功运行单只股票buy_and_hold策略。
 
 # update plan
+## 2017-08-23
+1. 加入Wind数据库
+
+## 2017-08-22
 1. 整理用户接口，进行整合
-2. 增加统计功能
+2. 增加模拟交易功能
+
+# Installation
+1. 要向site-package中加入mod和VectorTrader的路径
+

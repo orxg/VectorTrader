@@ -29,3 +29,14 @@ class AbstractDataSource():
         '''
         raise NotImplementedError
         
+class AbstractMod():
+    __metaclass__ = ABCMeta
+    
+    @abstractmethod
+    def start_up(self,env):
+        raise NotImplementedError
+        
+    def tear_down(self):
+        raise NotImplementedError
+        
+        

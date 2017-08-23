@@ -12,5 +12,5 @@ def initilize(context):
 
 def handle_bar(context):
     if not context.fired:
-        order('600340',100,1)
+        order('600340',1000,1)
         context.fired = True

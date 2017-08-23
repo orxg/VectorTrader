@@ -3,17 +3,8 @@
 Created on Sun Aug 20 20:40:35 2017
 
 @author: ldh
-
-config的形式如下:
-config = {'base':
-    {'start_date':'20100101',
-     'end_date':'20150101',
-     'capital':10000,
-     'frequency':'1d',
-     'universe':['600340']}}
 """
 
-    
 # main.py
 from .events import EVENT,Event
 from .environment import Environment
@@ -22,6 +13,7 @@ from .core.strategy import Strategy
 from .core.strategy_loader import StrategyLoader
 from .core.context import Context
 from .data.data_proxy import DataProxy
+from .data.data_source.tushare_data_source.tushare_data_source import TushareDataSource
 from .module.bar import BarMap
 from .module.account import Account
 from .module.analyser import Analyser
@@ -66,14 +58,17 @@ def all_system_go(config,strategy_path,mode = 'b'):
     scope = strategy_loader.load(scope)
     print 'Successfully loaded the user\'s stategy scope'
     
-    ## 初始化数据源、事件源，确定功能类型
+    ## 初始化数据源
+    if not env.data_source:
+        env.set_data_source(TushareDataSource())
+    if not env.data_proxy:
+        env.set_data_proxy(DataProxy(env.data_source,mode = mode))
+        
+    ## 初始化事件源
     mod_handler = ModHandler()
     mod_handler.set_env(env)
     mod_handler.start_up()
-    
-    if not env.data_proxy:
-        env.set_data_proxy(DataProxy(env.data_source,mode = mode))
-    
+       
     bar_map = BarMap(env.data_proxy,frequency)
     env.set_bar_map(bar_map)
     env.set_account(Account(env,capital))
@@ -88,19 +83,14 @@ def all_system_go(config,strategy_path,mode = 'b'):
     
     # 启动引擎
     print 'The system is going to run'
+    env.event_bus.publish_event(Event(EVENT.SYSTEM_INITILIZE))
     env.event_bus.publish_event(Event(EVENT.STRATEGY_INITILIZE))
     Engine(env).run()
 
     env.analyser.plot_pnl()
     
-if __name__ == '__main__':
+    mod_handler.tear_down()
     
-    config = {'base':
-    {'start_date':'20100101',
-     'end_date':'20150101',
-     'capital':10000,
-     'frequency':'1d',
-     'universe':['600340']}}
         
         
     

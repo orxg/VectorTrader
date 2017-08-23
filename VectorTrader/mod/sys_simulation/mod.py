@@ -9,8 +9,9 @@ Created on Mon Aug 21 15:25:19 2017
 
 from .simulation_broker import SimulationBroker
 from .simulation_event_source import SimulationEventSource
+from VectorTrader.interface import AbstractMod
 
-class SimulationMod():
+class SimulationMod(AbstractMod):
     def __init__(self):
         pass
     
@@ -20,6 +21,9 @@ class SimulationMod():
         '''
         env.set_broker(SimulationBroker(env))
         env.set_event_source(SimulationEventSource(env))
+    
+    def tear_down(self):
+        pass
     
     
 
