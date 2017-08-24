@@ -120,7 +120,7 @@ def build_daily_trading():
     free_turnover_ratio,trade_status,maxup_or_maxdown,ticker,
     date_time,ticker_id,last_updated_datetime
     '''
-    insert_str = ('%s' * 12)[:-1]
+    insert_str = ('%s' * 13)[:-1]
     final_str = '''
     INSERT INTO daily_price (%s) VALUES (%s)
     '''%(column_str,insert_str)
@@ -135,7 +135,9 @@ def build_daily_trading():
         last_updated_datetime = now
         ticker_data = get_stock_daily_price(ticker,start_date,end_date)
         ticker_data['ticker_id'] = idx
-        ticker_data['last_updated_time'] = now
+        ticker_data['last_updated_datetime'] = now
+        ticker_data['date_time'] = convert_to_datetime(ticker_data['date_time'])
+        ticker_data['last_updated_datetime'] = convert_to_datetime(ticker_data['last_updated_datetime'])
         ticker_data = ticker_data.values.tolist()
         cur.executemany(final_str,ticker_data)
         print '%s 股票已经成功插入数据库'%ticker
