@@ -17,6 +17,10 @@ class DataProxy():
     
     这样的好处在于DataSource只需要实现DataFrame数据类型。
     DataProxy负责对DataFrame数据类型进行加工得到定义的数据类型。
+    
+    20170825
+    ----------
+        创建MixedDataSource集成所有可得数据源。作为默认数据源。
     '''
     
     def __init__(self,data_source,mode = 'b'):
@@ -61,7 +65,7 @@ class DataProxy():
                                                     end_date,
                                                     frequency)
                    
-    ## 回测/模拟/实盘 数据接口
+    ## 回测/模拟/实盘 系统内部数据接口
     def get_bar(self,dt,ticker,frequency):
         ## XXX: 效率似乎不高，总是执行loc,应该在initilize_backtest_data中将所有bar进行
         ## 存储后再通过该函数调用
@@ -74,7 +78,8 @@ class DataProxy():
             bar.low_price = price_board['low_price']
             bar.volume = price_board['volume']
             return bar
-                                     
+    
+    # 一般数据接口
     def get_history(self,ticker,start_date,end_date,frequency):
         '''
         数据接口。
@@ -89,11 +94,22 @@ class DataProxy():
             list [pd.Timestamp]
         '''
         if self.mode == 'b':
-            return self._calendar_days[(self._calendar_days >= start_date) & (self._calendar_days <= end_date)].tolist()
+            return self._calendar_days.tolist()
         else:
             calendar_days = self.data_source.get_calendar_days(start_date,
                                                                end_date)
             return calendar_days.tolist()
         
-
+    def get_symbols(self):
+        '''
+        获取股票代码。
+        '''
+        try:
+            return self.data_source.get_symbols()
+        except Exception as e:
+            print e
+            print 'data_source\'s method [get_symbols] is not realized correctly'
+            raise
+            
+    
     

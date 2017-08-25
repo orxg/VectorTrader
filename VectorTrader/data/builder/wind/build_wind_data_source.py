@@ -91,6 +91,7 @@ def build_trading_days():
 def build_daily_trading():
     
     sql_create_table = '''
+    DROP TABLE IF EXISTS daily_price;
     CREATE TABLE daily_price (
     id INT PRIMARY KEY AUTO_INCREMENT,
     ticker_id INT NOT NULL,

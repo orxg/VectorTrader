@@ -13,7 +13,7 @@ from .core.strategy import Strategy
 from .core.strategy_loader import StrategyLoader
 from .core.context import Context
 from .data.data_proxy import DataProxy
-from .data.data_source.tushare_data_source.tushare_data_source import TushareDataSource
+from .data.data_source.mixed_data_source.mixed_data_source import MixedDataSource
 from .module.bar import BarMap
 from .module.account import Account
 from .module.analyser import Analyser
@@ -60,7 +60,7 @@ def all_system_go(config,strategy_path,mode = 'b'):
     
     ## 初始化数据源
     if not env.data_source:
-        env.set_data_source(TushareDataSource())
+        env.set_data_source(MixedDataSource())
     if not env.data_proxy:
         env.set_data_proxy(DataProxy(env.data_source,mode = mode))
         
