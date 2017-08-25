@@ -7,8 +7,8 @@ Created on Mon Aug 21 13:23:37 2017
 
 # simulation_broker.py
 
-from ...events import EVENT,Event
-from ...module.orders import FillOrder
+from VectorTrader.events import EVENT,Event
+from VectorTrader.module.orders import FillOrder
 
 class SimulationBroker():
     def __init__(self,env):
@@ -28,7 +28,7 @@ class SimulationBroker():
         order_price = order.order_price
         
         # 暂时不加检查地让其成交
-        ##TODO :根据current_bar_map进行撮合
+        ##TODO :根据BAR信息进行撮合
         match_amount = amount
         match_price = order_price
         ##TODO : 细化交易费用

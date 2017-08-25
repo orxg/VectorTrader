@@ -6,6 +6,8 @@ Created on Mon Aug 21 10:52:45 2017
 """
 
 # analyser.py
+import pandas as pd
+
 from ..events import EVENT
 
 class Analyser():
@@ -21,14 +23,19 @@ class Analyser():
         self.env.event_bus.add_listener(EVENT.POST_BAR,self._record_account)
         
     def _record_account(self,event):
-        calendar_dt = event.calendar_dt
-        trading_dt = event.trading_dt
-        account = event.account
-        self.portfolio_net_value.append([calendar_dt,trading_dt,account.asset_value])
+        calendar_dt = self.env.calendar_dt
+        trading_dt = self.env.trading_dt
+        account = self.env.account
+        self.portfolio_net_value.append([calendar_dt,trading_dt,account.total_asset_value])
         self.position_record.append([calendar_dt,trading_dt,account.position])
         
         
     def plot_pnl(self):
-        pass
+        pnl_df = pd.DataFrame(self.portfolio_net_value,columns = ['calendar_dt',
+                                                                  'trading_dt',
+                                                                  'total_asset_value'])
+        pnl_df = pnl_df[['calendar_dt','total_asset_value']]
+        pnl_df = pnl_df.set_index('calendar_dt')
+        pnl_df.plot()
     
     

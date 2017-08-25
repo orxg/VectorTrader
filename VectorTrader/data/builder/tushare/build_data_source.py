@@ -22,6 +22,8 @@ from sqlalchemy import create_engine
 import pandas as pd
 import tushare as ts
 
+from utils import time_to_market_date_convertor
+
 db_host = 'localhost'
 db_user = 'sec_user'
 db_pass = '123456'
@@ -54,12 +56,7 @@ def update_tradedate_calendar():
         
     print('成功更新交易日历数据tradedates')
 
-def date_time_str_convertor(date):
-    try:
-        time_to_market = dt.datetime.strptime(str(date),'%Y%m%d')
-        return time_to_market
-    except:
-        return dt.datetime(1991,1,1)
+
     
 def get_symbols_save_into_db(mode = 'replace'):
     '''
@@ -85,7 +82,7 @@ def get_symbols_save_into_db(mode = 'replace'):
     data['last_updated_time'] = now
     data['id'] = range(1,len(data) + 1)
     data['ticker'] = data.index
-    data['timeToMarket'] = data['timeToMarket'].apply(date_time_str_convertor)
+    data['timeToMarket'] = data['timeToMarket'].apply(time_to_market_date_convertor)
     data.to_sql('symbols',con,if_exists = 'replace',
                 index = False,flavor = 'mysql')
     

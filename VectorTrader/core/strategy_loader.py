@@ -18,7 +18,7 @@ class StrategyLoader():
         '''
         self.strategy_path = strategy_path
         
-    def load(self,scope,):
+    def load(self,scope):
         '''
         读取用户策略。
         
@@ -41,7 +41,10 @@ class StrategyLoader():
         except:
             print 'source codes encoding error,not utf8'
             raise
-        source_codes_compiled = compile(source_codes,'','exec')
+        source_codes_compiled = compile(source_codes,'strategy.py','exec')
         six.exec_(source_codes_compiled,scope)
         return scope 
-        
+       
+if __name__ == '__main__':
+    strategy_path = '.../test/test_buy_and_hold.py'
+    strategy_loader = StrategyLoader(strategy_path)

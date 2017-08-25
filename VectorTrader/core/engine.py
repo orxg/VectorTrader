@@ -36,7 +36,7 @@ class Engine():
         end_date = self.env.end_date
         frequency = self.env.frequency
         
-        for event in self.env.event_source(start_date,
+        for event in self.env.event_source.events(start_date,
                                            end_date,
                                            frequency):
             
@@ -44,19 +44,19 @@ class Engine():
             self.env.trading_dt = event.trading_dt
             
             if event.event_type == EVENT.BEFORE_TRADING:
-                self.env.event_bus.publish(PRE_BEFORE_TRADING)
-                self.env.event_bus.publish(event)
-                self.env.event_bus.publish(POST_BEFORE_TRADING)
+                self.env.event_bus.publish_event(PRE_BEFORE_TRADING)
+                self.env.event_bus.publish_event(event)
+                self.env.event_bus.publish_event(POST_BEFORE_TRADING)
             elif event.event_type == EVENT.BAR:
-                self.env.event_bus.publish(PRE_BAR)
-                self.env.event_bus.publish(event)
-                self.env.event_bus.publish(POST_BAR)               
+                self.env.event_bus.publish_event(PRE_BAR)
+                self.env.event_bus.publish_event(event)
+                self.env.event_bus.publish_event(POST_BAR)               
             elif event.event_type == EVENT.AFTER_TRADING:
-                self.env.event_bus.publish(PRE_AFTER_TRADING)
-                self.env.event_bus.publish(event)
-                self.env.event_bus.publish(POST_AFTER_TRADING)  
+                self.env.event_bus.publish_event(PRE_AFTER_TRADING)
+                self.env.event_bus.publish_event(event)
+                self.env.event_bus.publish_event(POST_AFTER_TRADING)  
             elif event.event_type == EVENT.SETTLEMENT:
-                self.env.event_bus.publish(PRE_SETTLEMENT)
-                self.env.event_bus.publish(event)
-                self.env.event_bus.publish(POST_SETTLEMENT)  
+                self.env.event_bus.publish_event(PRE_SETTLEMENT)
+                self.env.event_bus.publish_event(event)
+                self.env.event_bus.publish_event(POST_SETTLEMENT)  
             

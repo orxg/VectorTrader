@@ -18,7 +18,7 @@ class Account():
         self.position = {}
         self.market_value = {}
         
-        self.asset_value = self.cash
+        self.total_asset_value = self.cash
         
         for ticker in env.universe:
             self.position[ticker] = 0
@@ -40,17 +40,19 @@ class Account():
         self.market_value[fill_order.ticker] += fill_order.direction * \
             fill_order.amount * fill_order.match_price
     
-        self.asset_value = self.asset_value - fill_order.transaction_fee
+        self.total_asset_value = self.total_asset_value - fill_order.transaction_fee
         
     def _refresh(self,event):
-        
-        ## TODO : 实现bar_map功能
-        bar_map = event.bar_map # bar_map包含了BAR中universe所有的close_price
-        close_price_df = {}
-        self.asset_value = self.cash
-        for ticker,close_price in bar_map.items():
+
+        bar_map = self.env.bar_map 
+        universe = self.env.universe
+        calendar_dt = self.env.calendar_dt
+        bar_map.update_dt(calendar_dt)
+        self.total_asset_value = self.cash
+        for ticker in universe:
+            close_price = bar_map[ticker].close_price
             self.market_value[ticker] = self.position[ticker] * close_price
-            self.asset_value += self.position[ticker] * close_price
+            self.total_asset_value += self.position[ticker] * close_price
 
             
             

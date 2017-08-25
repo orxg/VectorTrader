@@ -11,12 +11,13 @@ from enum import Enum
 
 class Event():
     
-    def __init__(self,event_type,**kwards):
+    def __init__(self,event_type,**kwargs):
         '''
         事件。
         '''
+        self.__dict__ = kwargs
         self.event_type = event_type
-        self.__dict__ = kwards
+        
         
 class EventBus():
     
@@ -36,7 +37,7 @@ class EventBus():
             
 class EVENT(Enum):
     # 系统初始化
-    SYSTEM_INIT = 'system_init'
+    SYSTEM_INITILIZE = 'system_initilize'
     
     # 策略初始化
     STRATEGY_INITILIZE = 'strategy_initilize'
@@ -67,4 +68,5 @@ class EVENT(Enum):
     # 订单反馈
     FILL_ORDER = 'fill_order'
     
-           
+if __name__ == '__main__':
+    event = Event(EVENT.AFTER_TRADING,calendar_dt = '20150101')       
