@@ -8,6 +8,7 @@ Created on Sun Aug 20 14:12:48 2017
 # data_proxy.py
 from ..environment import Environment
 from ..module.bar import Bar
+from ..utils.convertor import dataframe_to_bars,list_to_generator
 
 class DataProxy():
     '''
@@ -17,7 +18,12 @@ class DataProxy():
     
     这样的好处在于DataSource只需要实现DataFrame数据类型。
     DataProxy负责对DataFrame数据类型进行加工得到定义的数据类型。
-    
+        
+    20170828
+    ---------
+        将回测数据一次性转换成bar_list,并构造成生成器。这样，
+        在每次post bar后生成当前bar对象,bar_map通过get_bar方法取得对应的bar.
+        
     20170825
     ----------
         创建MixedDataSource集成所有可得数据源。作为默认数据源。
@@ -25,13 +31,17 @@ class DataProxy():
     
     def __init__(self,data_source,mode = 'b'):
         self.data_source = data_source 
+        self.history_bars = None
         self._bars_map = None
         self.mode = mode
         
         if self.mode == 'b':
             # 回测模式
+            self._bars = {} # 存储回测当中所有的bar
+            self._bar_generator = {} # bar生成器,在post_bar后由bar_map调用取得当前的bar
             self._initilize_backtest_data()
-
+ 
+            
         elif self.mode == 'p':
             # 模拟模式
             pass
@@ -63,21 +73,35 @@ class DataProxy():
                                                     ticker,
                                                     start_date,
                                                     end_date,
-                                                    frequency)
+                                                    frequency).fillna(method = 'pad')
+            self._bars[ticker] = dataframe_to_bars(self._data[ticker],ticker,frequency)
+            self._bar_generator[ticker] = list_to_generator(self._bars[ticker])
+
                    
-    ## 回测/模拟/实盘 系统内部数据接口
-    def get_bar(self,dt,ticker,frequency):
-        ## XXX: 效率似乎不高，总是执行loc,应该在initilize_backtest_data中将所有bar进行
-        ## 存储后再通过该函数调用
+    ## 回测 系统内部数据接口
+    def get_bar(self,ticker):
+        '''
+        get_bar函数仅用于account更新,即只能由bar_map调用,不允许其他接口调用！
+        '''
         if self.mode == 'b':
-            bar = Bar(dt,ticker,frequency)
-            price_board = self._data[ticker].loc[dt]
-            bar.close_price = price_board['close_price']
-            bar.open_price = price_board['open_price']
-            bar.high_price = price_board['high_price']
-            bar.low_price = price_board['low_price']
-            bar.volume = price_board['volume']
+            bar = next(self._bar_generator[ticker])
             return bar
+        
+    def get_price(self,ticker,dt,val_type):
+        '''
+        获取指定日期的价格数据,供api中的order函数使用。
+        parameters
+        -----------
+            ticker
+                股票代码
+            dt
+                时间
+            val_type
+                价格类型种类
+        '''
+        data = self._data[ticker].loc[dt]
+        price = data[val_type]
+        return price
     
     # 一般数据接口
     def get_history(self,ticker,start_date,end_date,frequency):
@@ -89,6 +113,12 @@ class DataProxy():
     def get_calendar_days(self,start_date,end_date):
         '''
         返回start_date到end_date间的交易日。
+        Parameters
+        -----------
+            start_date
+                '20100101'
+            end_date
+                '20150101'
         Return
         -------
             list [pd.Timestamp]

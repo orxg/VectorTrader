@@ -33,6 +33,7 @@ def handle_bar(context):
     num = len(data)
     num = int(0.3 * num)
     data = data.iloc[:num,:]
+    
     ## 选取pe小于行业pe
     data = data.loc[data['pe'] < data['行业pe']]
     

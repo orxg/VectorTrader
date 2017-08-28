@@ -9,6 +9,16 @@
 5. 暴露的回测/模拟/交易api,单独暴露的数据api
 
 # update log
+## 2017-08-28
+1. 在modlue中增加了Calendar，提供日期滑动的功能(目前支持19910101到回测截止日期的滑动)
+2. 在core中添加HistoryBars负责提供回测中的可得历史行情数据。
+3. 在utils中添加convertor,提供bar与dataframe的转换
+4. 修改dataproxy准备回测数据的逻辑，将通过时间取数据改成用生成器产生对应数据(重要改动)
+5. get_bar仅能通过bar_map调用,所以api中的下单函数采用data_proxy的新增函数get_price获取对应的价格数据
+6. 通过5日均线与30日均线策略的测试
+7. 在analyser中增加了收益率统计、保存、展示功能(对应修改了main)
+8. account更新的触发事件，改为POST_BAR
+
 ## 2017-08-25
 1. 建立了部分基于Wind的数据库(不能正常使用)
 2. 建立了基于本地数据库的数据接口(基于matlab引擎)，未测试

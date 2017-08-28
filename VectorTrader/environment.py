@@ -21,6 +21,7 @@ class Environment():
         self.data_source = None
         self.data_proxy = None
         
+        self.calendar = None
         self.calendar_dt = None
         self.trading_dt = None
         
@@ -29,6 +30,8 @@ class Environment():
         self.frequency = None
         self.capital = None
         self.universe = None
+        
+        self.history_bars = None
         
     @classmethod
     def get_instance(cls):
@@ -54,3 +57,11 @@ class Environment():
         
     def set_broker(self,broker):
         self.broker = broker
+        
+    def set_calendar(self,calendar):
+        self.calendar = calendar
+    
+    def set_history_bars(self,history_bars):
+        self.history_bars = history_bars
+        
+        

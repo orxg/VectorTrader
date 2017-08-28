@@ -25,7 +25,7 @@ class Account():
             self.market_value[ticker] = 0
             
         self.env.event_bus.add_listener(EVENT.FILL_ORDER,self._handle_fill_order)
-        self.env.event_bus.add_listener(EVENT.BAR,self._refresh) # 确保第二个接收事件
+        self.env.event_bus.add_listener(EVENT.POST_BAR,self._refresh) # 确保第一个接收事件
         
     def _handle_fill_order(self,event):
         '''

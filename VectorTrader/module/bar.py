@@ -44,6 +44,10 @@ class Bar():
         return self._ticker
     
     @property
+    def date_time(self):
+        return self._dt
+    
+    @property
     def frequency(self):
         return self._frequency   
     
@@ -89,10 +93,15 @@ class BarMap():
         try:
             return self._cache[ticker]
         except:
-            bar = self.data_proxy.get_bar(self.dt,ticker,self.frequency)
+            bar = self.data_proxy.get_bar(ticker)
             self._cache[ticker] = bar
-            return bar    
+            return bar  
         
+
+            
+        
+        
+    
 ## --------------------- Abandon --------------------------------        
 class Bars():
     def __init__(self,ticker,frequency):
