@@ -16,16 +16,24 @@ class Account():
         
         self.cash = cash
         self.position = {}
+        self.available_position = {}
         self.market_value = {}
         
         self.total_asset_value = self.cash
         
+        self.order_passed = []
+        self.order_canceled = []
+        
         for ticker in env.universe:
             self.position[ticker] = 0
+            self.available_position[ticker] = 0
             self.market_value[ticker] = 0
             
         self.env.event_bus.add_listener(EVENT.FILL_ORDER,self._handle_fill_order)
+        self.env.event_bus.add_listener(EVENT.CANCEL_ORDER,self._handle_cancel_order)
         self.env.event_bus.add_listener(EVENT.POST_BAR,self._refresh) # 确保第一个接收事件
+        self.env.event_bus.add_listener(EVENT.SETTLEMENT,self._refresh_available_position)
+        
         
     def _handle_fill_order(self,event):
         '''
@@ -42,6 +50,21 @@ class Account():
     
         self.total_asset_value = self.total_asset_value - fill_order.transaction_fee
         
+        self.order_passed.append((event.calendar_dt,
+                                  event.trading_dt,
+                                  fill_order.ticker,
+                                  fill_order.amount,
+                                  fill_order.direction))
+        
+    def _handle_cancel_order(self,event):
+        cancel_reason = event.reason
+        calendar_dt = event.calendar_dt
+        trading_dt = event.trading_dt
+        ticker = event.ticker
+        amount = event.amount
+        
+        self.order_canceled.append((trading_dt,calendar_dt,ticker,amount,
+                                    cancel_reason))
     def _refresh(self,event):
 
         bar_map = self.env.bar_map 
@@ -53,8 +76,16 @@ class Account():
             close_price = bar_map[ticker].close_price
             self.market_value[ticker] = self.position[ticker] * close_price
             self.total_asset_value += self.position[ticker] * close_price
-
+        
+    def _refresh_available_position(self,event):
+        '''
+        更新可卖证券。
+        '''
+        for key,value in self.position.items():
+            self.available_position[key] = value
             
+
+    
             
         
         

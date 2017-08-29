@@ -65,8 +65,11 @@ class EVENT(Enum):
     # 订单事件
     ORDER = 'order'
     
-    # 订单反馈
+    # 成交订单
     FILL_ORDER = 'fill_order'
+    
+    # 订单取消
+    CANCEL_ORDER = 'cancel_order'
     
 if __name__ == '__main__':
     event = Event(EVENT.AFTER_TRADING,calendar_dt = '20150101')       

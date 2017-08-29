@@ -27,10 +27,17 @@ def handle_bar(context,history_bars):
     for ticker in universe:
         ma_5 = talib.MA(his[ticker]['close_price'].values,context.short_period)[-1]
         ma_30 = talib.MA(his[ticker]['close_price'].values,context.long_period)[-1]
+        
         if ma_5 >= ma_30 and position[ticker] == 0:
             buy_list.append(ticker)
+            print context.current_date
+            print ma_5
+            print ma_30
         if ma_5 < ma_30 and position[ticker] > 0:
             sell_list.append(ticker)
+            print context.current_date
+            print ma_5
+            print ma_30
             
     for ticker in sell_list:
         order(ticker,1000,-1)

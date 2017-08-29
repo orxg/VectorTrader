@@ -15,6 +15,7 @@ from .core.context import Context
 from .core.history_bars import HistoryBars
 from .data.data_proxy import DataProxy
 from .data.data_source.mixed_data_source.mixed_data_source import MixedDataSource
+from .data.data_source.tushare_data_source.tushare_data_source import TushareDataSource
 from .module.bar import BarMap
 from .module.account import Account
 from .module.analyser import Analyser
@@ -58,7 +59,7 @@ def all_system_go(config,strategy_path,mode = 'b'):
     apis = get_apis()
     scope.update(apis)
     scope = strategy_loader.load(scope)
-    print 'Successfully loaded the user\'s stategy scope'
+    print '成功加载策略空间'
     
     ## 初始化数据源
     if not env.data_source:
@@ -78,18 +79,19 @@ def all_system_go(config,strategy_path,mode = 'b'):
     env.set_bar_map(bar_map)
     env.set_account(Account(env,capital)) # 此处account要在analyser之前
     env.set_analyser(Analyser(env))
+    print '成功初始化运行环境'
     
-    print 'Successfully initilized running environment'
     ## 初始化策略
     user_context = Context()
+    
     history_bars = HistoryBars(env,30)
     strategy = Strategy(env,scope,user_context,history_bars)
     
     assert strategy is not None
-    print 'Strategy loaded complete'
+    print '用户策略加载完成'
     
     # 启动引擎
-    print 'The system is going to run'
+    print '开始运行'
     env.event_bus.publish_event(Event(EVENT.SYSTEM_INITILIZE))
     env.event_bus.publish_event(Event(EVENT.STRATEGY_INITILIZE))
     Engine(env).run()

@@ -8,11 +8,11 @@ Created on Tue Aug 22 08:33:34 2017
 # run_file.py
 
 config = {'base':
-    {'start_date':'20150101',
-     'end_date':'20160101',
+    {'start_date':'20170501',
+     'end_date':'20170801',
      'frequency':'1d',
      'capital':100000,
-     'universe':['600340','000001']}}
+     'universe':['600340']}}
 
 from VectorTrader import run_file
 
