@@ -7,7 +7,7 @@ Created on Wed Aug 23 14:27:27 2017
 
 # mod.py
 
-from .realtime_event_source import RealtimeEventSource
+from .realtime_event_source import PaperTradingEventSource,PaperTradingBroker
 from 
 class RealtimeEventSourceMod():
     def __init__(self):

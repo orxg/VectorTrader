@@ -107,6 +107,15 @@ class DataProxy():
     def get_history(self,ticker,start_date,end_date,frequency):
         '''
         数据接口。
+        数据根据上证交易日进行了补全，没有数据用空值表示。
+        Parameters
+        -----------
+            start_date
+                '20100101'
+            end_date
+                '20150101'
+            frequency 
+                '1d'
         '''
         return self.data_source.get_history(ticker,start_date,end_date,frequency)
             

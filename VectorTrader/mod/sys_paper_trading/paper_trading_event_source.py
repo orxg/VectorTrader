@@ -15,7 +15,7 @@ from threading import Thread
 from VectorTrader.events import Event,EVENT
 from .utils.calendar_handler import is_holiday_today
 
-class RealtimeEventSource():
+class PaperTradingEventSource():
     def __init__(self,env):
         self.env = env
         
