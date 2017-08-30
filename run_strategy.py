@@ -16,7 +16,7 @@ config = {'base':
 
 from VectorTrader import run_file
 
-
 strategy_path = './test/test_moving_average.py'
 run_file(config,strategy_path,'p')
+
 
