@@ -56,3 +56,8 @@
 # Installation
 1. 要向site-package中加入mod和VectorTrader的路径
 
+# Issue
+## Issue 01
+1. 当股票池为2017新股的时候，仍然在2014年有交易不成功的记录
+2. 在不符合交易逻辑的情况下进行了买入
+3. 做的图是一个白图，里面什么都没有
