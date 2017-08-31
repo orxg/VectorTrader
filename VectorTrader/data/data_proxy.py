@@ -37,6 +37,7 @@ class DataProxy():
         
         if self.mode == 'b':
             # 回测模式
+            # 在该模式下,系统会初始化所有基础数据
             self._bars = {} # 存储回测当中所有的bar
             self._bar_generator = {} # bar生成器,在post_bar后由bar_map调用取得当前的bar
             self._initilize_backtest_data()
@@ -81,7 +82,7 @@ class DataProxy():
     ## 回测 系统内部数据接口
     def get_bar(self,ticker):
         '''
-        get_bar函数仅用于account更新,即只能由bar_map调用,不允许其他接口调用！
+        get_bar函数仅用于account更新,即只能由bar_map调用,不允许其他调用！
         '''
         if self.mode == 'b':
             bar = next(self._bar_generator[ticker])
@@ -104,7 +105,7 @@ class DataProxy():
         return price
     
     # 一般数据接口
-    def get_history(self,ticker,start_date,end_date,frequency):
+    def get_history(self,ticker,start_date,end_date,frequency,kind):
         '''
         数据接口。
         数据根据上证交易日进行了补全，没有数据用空值表示。
@@ -115,9 +116,17 @@ class DataProxy():
             end_date
                 '20150101'
             frequency 
-                '1d'
+                '1d','1m','5m'
+            kind
+                '0' 不复权
+                '1' 后复权
+                '-1' 前复权
+                
+        Returns
+        --------
+            DataFrame (date_time,open_price,high_price,low_price,close_price,volume,amount)
         '''
-        return self.data_source.get_history(ticker,start_date,end_date,frequency)
+        return self.data_source.get_history(ticker,start_date,end_date,frequency,kind)
             
     def get_calendar_days(self,start_date,end_date):
         '''
@@ -149,6 +158,87 @@ class DataProxy():
             print e
             print 'data_source\'s method [get_symbols] is not realized correctly'
             raise
-            
+
+    def get_rights_issue(self,ticker,start_date,end_date):
+        '''
+        获取股票已实施配股数据。若时间段内股票没有配股则返回空表。
+        Parameters
+        ----------
+            ticker
+                '600340'
+            start_date
+                '20100101'
+            end_date
+                '20150101'
+        Returns
+        --------
+            DataFrame
+                index ex_rights_date
+                columns 
+                    'ex_rights_date','rights_issue_per_stock','rights_issue_price',
+                    'transfer_rights_issue_per_stock','transfer_price'
+                        (除权日,每股配股,配股价，每股转配，每股转配价)
+        '''
+        return self.data_source.get_rights_issue(ticker,start_date,end_date)
+    
+    def get_dividend(self,ticker,start_date,end_date):
+        '''
+        获取股票时间段内实施的分红送股转增数据。若时间段内股票没有分红送股则返回空表。
+        Parameters
+        ----------
+            ticker
+                '600340'
+            start_date
+                '20100101'
+            end_date
+                '20150101'
+        Returns
+        --------
+            DataFrame
+                index XD_date
+                columns XD_date,dividend_per_share,multiplier
+                        (除权除息日,每股分红,分红后每股乘数)
+        '''
+        return self.data_source.get_dividend(ticker,start_date,end_date)
+    
+    def get_trade_status(self,ticker,start_date,end_date):
+        '''
+        获取股票交易状态。若时间段内股票没有上市交易则返回空表。
+        Parameters
+        -----------
+            ticker
+                股票代码
+            start_date
+                '20100101'
+            end_date
+                '20150101'
+        Returns
+        --------
+            DataFrame 
+                index date_time
+                columns (date_time,ticker,status)
+        Notes
+        -------
+            status 
+                正常交易: 1
+                停牌: 0
+        '''  
+        return self.data_source.get_trade_status(ticker,start_date,end_date)
+    
+    def get_list_delist_date(self,ticker):
+        '''
+        获取股票上市与退市日期。若没有退市，则退市为0.
+        Parameters
+        -----------
+            ticker
+                600340
+        Returns
+        --------
+            tuple
+                (list_date,delist_date) datetime类型
+                
+        '''
+        return self.data_source.get_list_delist_date(ticker)
+    
     
     

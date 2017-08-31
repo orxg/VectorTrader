@@ -15,7 +15,6 @@ from .core.context import Context
 from .core.history_bars import HistoryBars
 from .data.data_proxy import DataProxy
 from .data.data_source.mixed_data_source.mixed_data_source import MixedDataSource
-from .data.data_source.tushare_data_source.tushare_data_source import TushareDataSource
 from .module.bar import BarMap
 from .module.account import Account
 from .module.analyser import Analyser
