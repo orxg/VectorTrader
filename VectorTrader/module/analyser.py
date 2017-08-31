@@ -20,9 +20,9 @@ class Analyser():
         
         self.portfolio_net_value = []
         self.position_record = []        
-        self.env.event_bus.add_listener(EVENT.POST_BAR,self._record_account)
+        self.env.event_bus.add_listener(EVENT.POST_BAR,self._record_post_bar)
         
-    def _record_account(self,event):
+    def _record_post_bar(self,event):
         trading_dt = self.env.trading_dt
         account = self.env.account
         self.portfolio_net_value.append([trading_dt,account.total_asset_value])

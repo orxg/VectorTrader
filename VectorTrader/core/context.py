@@ -29,7 +29,7 @@ class Context():
         
     @property
     def universe(self):
-        return Environment.get_instance().universe
+        return Environment.get_instance().get_universe()
     
     @property
     def current_date(self):

@@ -6,6 +6,7 @@ Created on Sun Aug 20 14:11:54 2017
 """
 
 # account.py
+from .position import Position
 from ..events import EVENT
 
 class Account():
@@ -13,48 +14,43 @@ class Account():
     def __init__(self,env,cash):
         
         self.env = env
+        self.data_proxy = self.env.data_proxy
         
         self.cash = cash
-        self.position = {}
-        self.available_position = {}
-        self.market_value = {}
-        
+        self.position = Position()
         self.total_asset_value = self.cash
         
         self.order_passed = []
         self.order_canceled = []
-        
-        for ticker in env.universe:
-            self.position[ticker] = 0
-            self.available_position[ticker] = 0
-            self.market_value[ticker] = 0
             
         self.env.event_bus.add_listener(EVENT.FILL_ORDER,self._handle_fill_order)
         self.env.event_bus.add_listener(EVENT.CANCEL_ORDER,self._handle_cancel_order)
-        self.env.event_bus.add_listener(EVENT.POST_BAR,self._refresh) # 确保第一个接收事件
-        self.env.event_bus.add_listener(EVENT.SETTLEMENT,self._refresh_available_position)
+        self.env.event_bus.add_listener(EVENT.PRE_BEFORE_TRADING,self._refresh_pre_before_trading)
+        self.env.event_bus.add_listener(EVENT.POST_BAR,self._refresh_post_bar) # 确保第一个接收事件
+        self.env.event_bus.add_listener(EVENT.SETTLEMENT,self._refresh_settlement)
         
         
     def _handle_fill_order(self,event):
         '''
         监听Broker返回的FillOrder事件。
+        仅对仓位和成本进行调整。对市场价值和资产总值不做调整。
         '''
         fill_order = event.fill_order
-
-        self.cash += - fill_order.direction * fill_order.amount * fill_order.match_price - \
-            fill_order.transaction_fee
-        self.position[fill_order.ticker] += fill_order.direction * \
-            fill_order.amount
-        self.market_value[fill_order.ticker] += fill_order.direction * \
-            fill_order.amount * fill_order.match_price
-    
-        self.total_asset_value = self.total_asset_value - fill_order.transaction_fee
+         
+        ticker = fill_order.ticker
+        match_price = fill_order.match_price
+        amount = fill_order.amount
+        direction = fill_order.direction
+        transaction_fee = fill_order.transaction_fee
         
-        self.order_passed.append((event.calendar_dt,
-                                  event.trading_dt,
-                                  fill_order.ticker,
-                                  fill_order.amount,
-                                  fill_order.direction))
+        origin_position = self.position.get_position(ticker)
+        
+        new_position = origin_position + direction * amount
+        
+        self.cash += - direction * amount * match_price - transaction_fee
+        self.position.set_position(ticker,new_position)      
+        self.order_passed.append((event.calendar_dt,event.trading_dt,
+                                  ticker,amount,direction))
         
     def _handle_cancel_order(self,event):
         cancel_reason = event.reason
@@ -65,24 +61,75 @@ class Account():
         
         self.order_canceled.append((trading_dt,calendar_dt,ticker,amount,
                                     cancel_reason))
-    def _refresh(self,event):
-
-        bar_map = self.env.bar_map 
-        universe = self.env.universe
-        calendar_dt = self.env.calendar_dt
-        bar_map.update_dt(calendar_dt)
-        self.total_asset_value = self.cash
-        for ticker in universe:
-            close_price = bar_map[ticker].close_price
-            self.market_value[ticker] = self.position[ticker] * close_price
-            self.total_asset_value += self.position[ticker] * close_price
         
-    def _refresh_available_position(self,event):
+    def _refresh_pre_before_trading(self,event):
+        data_proxy = self.env.data_proxy
+        
+        # 此处可能效率堪忧
+        for ticker in self.env.get_universe():
+            # 获取分红配股数据
+            dividend = data_proxy.get_current_dividend(ticker,self.env.calendar_dt)
+            rights_issue = data_proxy.get_current_rights_issue(ticker,self.env.calendar_dt)
+            # 处理分红
+            if dividend != 0:
+                dividend_per_share = dividend['dividend_per_share']
+                multiplier = dividend['multiplier']
+                self.cash += self.position.get_position(ticker) * dividend_per_share
+                self.position.set_position(self.position.get_position(ticker) * multiplier) 
+            # 处理配股
+            if rights_issue != 0:
+                rights_issue_per_stock = rights_issue['rights_issue_per_stock']
+                rights_issue_price = rights_issue['rights_issue_price']
+                transfer_rights_issue_per_stock = rights_issue['transfer_rights_issue_per_stock']
+                transfer_rights_issue_price = rights_issue['transfer_rights_issue_price']
+                current_position = self.position.get_position(ticker)
+                rights_issue_stocks = int(rights_issue_per_stock * current_position)
+                transfer_rights_issue_stocks = int(transfer_rights_issue_per_stock * current_position)
+                
+                rights_issue_maximum_cost = rights_issue_stocks * rights_issue_price
+                transfer_rights_issue_maximum_cost = transfer_rights_issue_stocks * transfer_rights_issue_price
+                
+                # 配股逻辑
+                # 原则:有钱就配,能配多少是多少
+                if transfer_rights_issue_price == 0:
+                    if self.cash >= rights_issue_maximum_cost:
+                        self.cash -= rights_issue_maximum_cost
+                        self.position.add_position(ticker,rights_issue_stocks)
+                    elif self.cash < rights_issue_maximum_cost:
+                        rights_issue_stocks = int(self.cash / rights_issue_price)
+                        self.cash -= rights_issue_stocks * rights_issue_price
+                        self.position.add_position(ticker,rights_issue_stocks)
+                elif transfer_rights_issue_price > 0:
+                    if self.cash >= (rights_issue_maximum_cost + \
+                                     transfer_rights_issue_maximum_cost):
+                        self.cash -= rights_issue_maximum_cost + \
+                                    transfer_rights_issue_maximum_cost
+                        self.position.add_position(ticker,rights_issue_stocks + \
+                                                   transfer_rights_issue_stocks)
+                    elif self.cash < (rights_issue_maximum_cost + transfer_rights_issue_maximum_cost) and \
+                         self.cash >= rights_issue_maximum_cost:
+                        self.cash -= rights_issue_stocks * rights_issue_price
+                        self.position.add_position(ticker,rights_issue_stocks)
+                        transfer_rights_issue_stocks = int(self.cash / transfer_rights_issue_price)
+                        self.cash -= transfer_rights_issue_stocks * transfer_rights_issue_price
+                        self.position.add_position(ticker,transfer_rights_issue_stocks)
+                    elif self.cash < rights_issue_maximum_cost:
+                        rights_issue_stocks = int(self.cash / rights_issue_price)
+                        self.cash -= rights_issue_stocks * rights_issue_price
+                        self.position.add_position(ticker,rights_issue_stocks)
+                                                             
+    def _refresh_post_bar(self,event):
+        for ticker,value in self.position.position.items():
+            close_price = self.data_proxy.get_current_bar(ticker,self.env.trading_dt)['close_price']
+            self.position.set_position_market_value(ticker,value * close_price)
+        self.total_asset_value = self.cash + self.position.get_position_value()
+        
+    def _refresh_settlement(self,event):
         '''
         更新可卖证券。
         '''
-        for key,value in self.position.items():
-            self.available_position[key] = value
+        for ticker,value in self.position.position.items():
+            self.position.set_position_available(ticker,value)
             
 
     

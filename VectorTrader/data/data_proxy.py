@@ -64,46 +64,46 @@ class DataProxy():
         frequency = env.frequency
         
         # 回测专有数据
-        self._data = {}
-        self._calendar_days = None
+        self._history_data = {}
+        self._dividend_data = {}
+        self._rights_issue_data = {}
+        self._trade_status_data = {}
+        self._list_delist_date_data = {}
+        self._calendar_days = self.get_calendar_days(start_date,end_date)
         
-        self._calendar_days = self.data_source.get_calendar_days(start_date,
-                                                                 end_date)
         for ticker in universe:
-            self._data[ticker] = self.data_source.get_history(
-                                                    ticker,
-                                                    start_date,
-                                                    end_date,
-                                                    frequency).fillna(method = 'pad')
-            self._bars[ticker] = dataframe_to_bars(self._data[ticker],ticker,frequency)
-            self._bar_generator[ticker] = list_to_generator(self._bars[ticker])
-
-                   
+            self._history_data[ticker] = self.get_history(ticker,start_date,end_date,frequency,'0').fillna(method = 'pad')
+            self._dividend_data[ticker] = self.get_dividend(ticker,start_date,end_date)
+            self._rights_issue_data[ticker] = self.get_rights_issue(ticker,start_date,end_date)
+            self._trade_status_data[ticker] = self.get_trade_status(ticker,start_date,end_date)
+            self._list_delist_date_data[ticker] = self.get_list_delist_date(ticker)
+                
+            
     ## 回测 系统内部数据接口
-    def get_bar(self,ticker):
-        '''
-        get_bar函数仅用于account更新,即只能由bar_map调用,不允许其他调用！
-        '''
-        if self.mode == 'b':
-            bar = next(self._bar_generator[ticker])
-            return bar
-        
-    def get_price(self,ticker,dt,val_type):
-        '''
-        获取指定日期的价格数据,供api中的order函数使用。
-        parameters
-        -----------
-            ticker
-                股票代码
-            dt
-                时间
-            val_type
-                价格类型种类
-        '''
-        data = self._data[ticker].loc[dt]
-        price = data[val_type]
-        return price
+    ## XX : 大量使用loc,效率需要提高
+    def get_current_bar(self,ticker,dt):
+        return self._history_data[ticker].loc[dt]
     
+    def get_current_dividend(self,ticker,dt):
+        try:
+            return self._dividend_data[ticker].loc[dt]
+        except:
+            return 0
+    
+    def get_current_rights_issue(self,ticker,dt):
+        try:
+            return self._rights_issue_data[ticker].loc[dt]
+        except:
+            return 0
+    
+    def if_current_date_trade(self,ticker,dt):
+        list_date,delist_date = self._list_delist_date_data[ticker]
+        if dt >= list_date and dt < delist_date:
+            if self._trade_status_data[ticker].loc[dt] == 1:
+                return True
+        else:
+            return False
+        
     # 一般数据接口
     def get_history(self,ticker,start_date,end_date,frequency,kind):
         '''

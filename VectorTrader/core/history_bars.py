@@ -27,7 +27,7 @@ class HistoryBars():
         self.event_bus = self._env.event_bus
         self._history_bars = {}
         self._init_history_bars()
-        self.event_bus.add_listener(EVENT.POST_BAR,self._update_data)
+        self.event_bus.add_listener(EVENT.POST_BAR,self._update_post_bar)
         
     def _init_history_bars(self):
         start_date = self._env.start_date
@@ -43,7 +43,7 @@ class HistoryBars():
             ini_bars = dataframe_to_bars(ini_data,ticker,frequency)
             self._history_bars[ticker] = ini_bars
             
-    def _update_data(self,event):
+    def _update_post_bar(self,event):
         bar_map = self._env.bar_map
         for ticker in self._env.universe:
             new_bar = bar_map[ticker]
