@@ -13,10 +13,8 @@ from .core.strategy import Strategy
 from .core.strategy_loader import StrategyLoader
 from .core.dynamic_universe import DynamicUniverse
 from .core.context import Context
-from .core.history_bars import HistoryBars
 from .data.data_proxy import DataProxy
 from .data.data_source.mixed_data_source.mixed_data_source import MixedDataSource
-from .module.bar import BarMap
 from .module.account import Account
 from .module.analyser import Analyser
 from .module.calendar import Calendar
@@ -79,9 +77,7 @@ def all_system_go(config,strategy_path,mode = 'b'):
     mod_handler.set_env(env)
     mod_handler.start_up()
     
-    ## 初始化bar_map,account,dynamic_universe
-    bar_map = BarMap(env.data_proxy,frequency)
-    env.set_bar_map(bar_map)
+    ## 初始化account,dynamic_universe
     env.set_dynamic_universe(DynamicUniverse(env)) # 此处dynamic_universe要在account之前以保证监听函数靠前
     env.set_account(Account(env,capital)) # 此处account要在analyser之前
     env.set_analyser(Analyser(env))
