@@ -21,6 +21,7 @@ class Environment():
         self.data_source = None
         self.data_proxy = None
         
+        self.calendar = None
         self.calendar_dt = None
         self.trading_dt = None
         
@@ -28,7 +29,10 @@ class Environment():
         self.end_date = None
         self.frequency = None
         self.capital = None
-        self.universe = None
+        self.universe = None # 用户初始股票池
+        self.dynamic_universe = None # 动态股票池
+        
+        self.history_bars = None
         
     @classmethod
     def get_instance(cls):
@@ -54,3 +58,21 @@ class Environment():
         
     def set_broker(self,broker):
         self.broker = broker
+        
+    def set_calendar(self,calendar):
+        self.calendar = calendar
+    
+    def set_history_bars(self,history_bars):
+        self.history_bars = history_bars
+        
+    def set_dynamic_universe(self,dynamic_universe):
+        self.dynamic_universe = dynamic_universe
+        
+    def get_dynamic_universe(self):
+        return self.dynamic_universe
+    
+    def get_account(self):
+        return self.account
+    
+    def get_universe(self):
+        return self.dynamic_universe.dynamic_universe

@@ -10,18 +10,15 @@ Created on Sun Aug 20 23:12:51 2017
 
 from importlib import import_module
 
-MOD_LIST = ['sys_simulation']
+
 
 class ModHandler():
-    def __init__(self):
-        self._mod_list = []
+    def __init__(self,MOD_LIST):
+        self._mod_list = MOD_LIST
         self.mod_dict = {}
         
     def set_env(self,environment):
         self.env = environment
-        
-        for mod_name in MOD_LIST:           
-            self._mod_list.append(mod_name)
             
         for mod_name in self._mod_list:
             module = import_module(mod_name)

@@ -64,3 +64,7 @@ def convert_to_datetime(time_stamp):
     return time_stamp.to_pydatetime()
 
 convert_to_datetime = np.frompyfunc(convert_to_datetime,1,1)
+
+# 用于将从guosen数据库中读取的数据Decimal类型转换成float
+convert_to_float = np.frompyfunc(np.float,1,1)
+    

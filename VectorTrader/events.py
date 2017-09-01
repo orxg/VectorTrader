@@ -20,7 +20,12 @@ class Event():
         
         
 class EventBus():
-    
+    def __str__(self):
+        event_bus_list = []
+        for name,value in self.event_bus.items():
+            event_bus_list.append([name,value])
+        return str(event_bus_list)
+            
     def __init__(self):
         self.event_bus = defaultdict(list)
         
@@ -65,8 +70,11 @@ class EVENT(Enum):
     # 订单事件
     ORDER = 'order'
     
-    # 订单反馈
+    # 成交订单
     FILL_ORDER = 'fill_order'
+    
+    # 订单取消
+    CANCEL_ORDER = 'cancel_order'
     
 if __name__ == '__main__':
     event = Event(EVENT.AFTER_TRADING,calendar_dt = '20150101')       
