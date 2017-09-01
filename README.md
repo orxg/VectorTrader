@@ -1,12 +1,10 @@
 # VectorTrader
 量化研究。
 
-# 远期计划
-1. 支持完整的混合数据源
-2. 回测、模拟、实盘实现以及便捷切换(同一套代码)
-3. 针对多因子策略的定制:因子有效性检验;组合权重;股票收益率建模
-4. 分钟、tick级策略
-5. 暴露的回测/模拟/交易api,单独暴露的数据api
+# Installation
+1. 向site-packages中添加VectorTrader路径文件pth.
+2. 安装requirments中的需求
+3. 在data_source中的mixed_data_source中根据Readme进行调整。
 
 # update log
 ## 2017-09-01
@@ -49,23 +47,8 @@
 ## 2017-08-22
 程序成功运行单只股票buy_and_hold策略。
 
-# update plan
-## 2017-08-25
-1. 暴露数据api、策略编写过程中的其他api提示
-2. 编写序贯选股策略、均线策略，根据编写中的需求更新context，universe等设定，目标是实现序贯选股策略的每日运行与信号发送
-
-## 2017-08-23
-1. 加入Wind数据库
-
-## 2017-08-22
-1. 整理用户接口，进行整合
-2. 增加模拟交易功能
-
-# Installation
-1. 要向site-package中加入mod和VectorTrader的路径
-
 # Issue
-## Issue 01
+## Issue 01(解决)
 1. 当股票池为2017新股的时候，仍然在2014年有交易不成功的记录
 2. 在不符合交易逻辑的情况下进行了买入
 3. 做的图是一个白图，里面什么都没有

@@ -12,11 +12,11 @@ config = {'base':
      'end_date':'20170501',
      'frequency':'1d',
      'capital':100000,
-     'universe':['600340']}}
+     'universe':['600381']}}
 
 from VectorTrader import run_file
 
-strategy_path = './test/test_moving_average.py'
+strategy_path = './strategy/guosen/sell_too_much.py'
 run_file(config,strategy_path,'b')
 
 
