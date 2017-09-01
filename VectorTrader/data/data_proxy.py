@@ -6,6 +6,7 @@ Created on Sun Aug 20 14:12:48 2017
 """
 
 # data_proxy.py
+import datetime
 from ..environment import Environment
 from ..module.bar import Bar
 from ..utils.convertor import dataframe_to_bars,list_to_generator
@@ -19,6 +20,10 @@ class DataProxy():
     这样的好处在于DataSource只需要实现DataFrame数据类型。
     DataProxy负责对DataFrame数据类型进行加工得到定义的数据类型。
         
+    20170901
+    ---------
+        采用不复权数据进行回测。
+        
     20170828
     ---------
         将回测数据一次性转换成bar_list,并构造成生成器。这样，
@@ -29,17 +34,16 @@ class DataProxy():
         创建MixedDataSource集成所有可得数据源。作为默认数据源。
     '''
     
-    def __init__(self,data_source,mode = 'b'):
+    def __init__(self,data_source,mode = 'b',initilize_window = 30):
         self.data_source = data_source 
         self.history_bars = None
         self._bars_map = None
         self.mode = mode
+        self.initilize_window = initilize_window
         
         if self.mode == 'b':
             # 回测模式
             # 在该模式下,系统会初始化所有基础数据
-            self._bars = {} # 存储回测当中所有的bar
-            self._bar_generator = {} # bar生成器,在post_bar后由bar_map调用取得当前的bar
             self._initilize_backtest_data()
  
             
@@ -62,9 +66,13 @@ class DataProxy():
         start_date = env.start_date
         end_date = env.end_date
         frequency = env.frequency
-        
+        calendar = env.calendar
+        adjust_start_date = calendar.adjust_date(datetime.datetime.strptime(start_date,'%Y%m%d'),
+                                                 -self.initilize_window).strftime('%Y%m%d')
         # 回测专有数据
+        
         self._history_data = {}
+        self._pregened_history_data = {} # 剔除停牌日的前复权数据
         self._dividend_data = {}
         self._rights_issue_data = {}
         self._trade_status_data = {}
@@ -73,37 +81,53 @@ class DataProxy():
         
         for ticker in universe:
             self._history_data[ticker] = self.get_history(ticker,start_date,end_date,frequency,'0').fillna(method = 'pad')
+            self._pregened_history_data[ticker] = self.get_history(ticker,adjust_start_date,end_date,frequency,'-1').dropna()
             self._dividend_data[ticker] = self.get_dividend(ticker,start_date,end_date)
             self._rights_issue_data[ticker] = self.get_rights_issue(ticker,start_date,end_date)
             self._trade_status_data[ticker] = self.get_trade_status(ticker,start_date,end_date)
             self._list_delist_date_data[ticker] = self.get_list_delist_date(ticker)
                 
-            
-    ## 回测 系统内部数据接口
-    ## XX : 大量使用loc,效率需要提高
-    def get_current_bar(self,ticker,dt):
+    # 回测 系统内部数据接口
+    ## XX : 大量使用loc
+    def get_bar(self,ticker,dt):
         return self._history_data[ticker].loc[dt]
     
-    def get_current_dividend(self,ticker,dt):
+    def get_bars(self,ticker,n,end_date):
+        '''
+        context数据接口。
+        '''
+        return self._pregened_history_data[ticker][:end_date].iloc[-n:]
+    
+    def get_pre_before_trading_dividend(self,ticker,dt):
         try:
             return self._dividend_data[ticker].loc[dt]
         except:
             return 0
     
-    def get_current_rights_issue(self,ticker,dt):
+    def get_pre_before_trading_rights_issue(self,ticker,dt):
         try:
             return self._rights_issue_data[ticker].loc[dt]
         except:
             return 0
     
-    def if_current_date_trade(self,ticker,dt):
+    def is_date_trade(self,ticker,dt):
         list_date,delist_date = self._list_delist_date_data[ticker]
-        if dt >= list_date and dt < delist_date:
-            if self._trade_status_data[ticker].loc[dt] == 1:
-                return True
-        else:
-            return False
+        if delist_date != 0:
+            if dt >= list_date and dt < delist_date:
+                if self._trade_status_data[ticker].loc[dt,'status'] == 1:
+                    return True
+            else:
+                return False
+        elif delist_date == 0:
+            if dt >= list_date:
+                if self._trade_status_data[ticker].loc[dt,'status'] == 1:
+                    return True
+                else:
+                    return False
+            
         
+    # 模拟 系统内部接口
+    
     # 一般数据接口
     def get_history(self,ticker,start_date,end_date,frequency,kind):
         '''
@@ -142,7 +166,10 @@ class DataProxy():
             list [pd.Timestamp]
         '''
         if self.mode == 'b':
-            return self._calendar_days.tolist()
+            try:
+                return self._calendar_days.tolist()
+            except:
+                return self.data_source.get_calendar_days(start_date,end_date).tolist()
         else:
             calendar_days = self.data_source.get_calendar_days(start_date,
                                                                end_date)

@@ -58,7 +58,8 @@ class Analyser():
                                                                                    'trading_dt',
                                                                                    'ticker',
                                                                                    'amount',
-                                                                                   'direction'])
+                                                                                   'direction',
+                                                                                   'match_price'])
         self.order_canceled = pd.DataFrame(self.env.account.order_canceled,columns = ['calendar_dt',
                                                                                       'trading_dt',
                                                                                       'ticker',

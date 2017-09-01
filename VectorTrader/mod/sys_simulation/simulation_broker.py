@@ -15,9 +15,9 @@ class SimulationBroker():
         self.env = env
         
         event_bus = env.event_bus
-        event_bus.add_listener(EVENT.ORDER,self._match_order)
+        event_bus.add_listener(EVENT.ORDER,self._match_on_bar)
         
-    def _match_order(self,event):
+    def _match_on_bar(self,event):
         order = event.order
         
         calendar_dt = event.calendar_dt
@@ -29,8 +29,7 @@ class SimulationBroker():
         
         # 账户检查是否有充足的股票可以卖出
         if direction == -1:
-            available_position = self.env.account.available_position
-            available_amount = available_position[ticker]
+            available_amount = self.env.account.position.get_position_available(ticker)
             if available_amount >= amount:
                 pass
             else:
@@ -43,7 +42,7 @@ class SimulationBroker():
                 pass
             else:
                 cancel_event = Event(EVENT.CANCEL_ORDER,
-                                     reason = 'not enough cash',
+                                     reason = 'Not enough cash',
                                      ticker = ticker,
                                      amount = amount,
                                      calendar_dt = calendar_dt,
@@ -52,7 +51,7 @@ class SimulationBroker():
                 return
                 
         # 根据当前bar信息进行撮合
-        volume = self.env.data_proxy.get_price(ticker,calendar_dt,'volume')
+        volume = self.env.data_proxy.get_bar(ticker,calendar_dt)['volume']
         # 默认有10倍成交量才能成交
         if volume > 10 * amount:
             match_amount = amount
@@ -60,7 +59,7 @@ class SimulationBroker():
         else:
             if direction == 1:
                 cancel_event = Event(EVENT.CANCEL_ORDER,
-                                     reason = 'not enough stock to buy from',
+                                     reason = 'Not enough stock to buy from',
                                      ticker = ticker,
                                      amount = amount,
                                      calendar_dt = calendar_dt,
@@ -69,7 +68,7 @@ class SimulationBroker():
                 return
             elif direction == -1:
                 cancel_event = Event(EVENT.CANCEL_ORDER,
-                                     reason = 'not enough stock to sell to',
+                                     reason = 'Not enough stock to sell to',
                                      ticker = ticker,
                                      amount = amount,
                                      calendar_dt = calendar_dt,

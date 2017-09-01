@@ -21,7 +21,7 @@ class DynamicUniverse():
     def _refresh_pre_before_trading(self,event):
         self.dynamic_universe = []
         for ticker in self.user_universe:
-            if self.data_proxy.if_current_date_trade(self.env.calendar_dt):
+            if self.data_proxy.is_date_trade(ticker,self.env.calendar_dt):
                 self.dynamic_universe.append(ticker)
         
 

@@ -15,10 +15,10 @@ def initilize(context):
     context.long_period = 30
     context.short_period = 5
 
-def handle_bar(context,history_bars):
+def handle_bar(context):
     universe = context.universe
     # 得到universe中股票的过去n个交易日收盘价数据
-    his = history_bars.get_history(context.long_period)
+    his = context.get_history(context.long_period)
     buy_list = []
     sell_list = []
     

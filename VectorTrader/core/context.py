@@ -55,6 +55,17 @@ class Context():
     def total_asset_value(self):
         return Environment.get_instance().account.total_asset_value
     
+    def get_history(self,n):
+        env = Environment.get_instance()
+        if env.mode == 'b':
+            calendar = env.calendar
+            current_date = env.calendar_dt
+            end_date = calendar.adjust_date(current_date,-1)
+            history = {}
+            for ticker in env.universe:
+                history[ticker] = env.data_proxy.get_bars(ticker,n,end_date)
+            return history
+            
     
     
     

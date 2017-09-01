@@ -14,7 +14,6 @@ class Account():
     def __init__(self,env,cash):
         
         self.env = env
-        self.data_proxy = self.env.data_proxy
         
         self.cash = cash
         self.position = Position()
@@ -50,7 +49,7 @@ class Account():
         self.cash += - direction * amount * match_price - transaction_fee
         self.position.set_position(ticker,new_position)      
         self.order_passed.append((event.calendar_dt,event.trading_dt,
-                                  ticker,amount,direction))
+                                  ticker,amount,direction,match_price))
         
     def _handle_cancel_order(self,event):
         cancel_reason = event.reason
@@ -68,16 +67,16 @@ class Account():
         # 此处可能效率堪忧
         for ticker in self.env.get_universe():
             # 获取分红配股数据
-            dividend = data_proxy.get_current_dividend(ticker,self.env.calendar_dt)
-            rights_issue = data_proxy.get_current_rights_issue(ticker,self.env.calendar_dt)
+            dividend = data_proxy.get_pre_before_trading_dividend(ticker,self.env.calendar_dt)
+            rights_issue = data_proxy.get_pre_before_trading_rights_issue(ticker,self.env.calendar_dt)
             # 处理分红
-            if dividend != 0:
+            if dividend is not 0:
                 dividend_per_share = dividend['dividend_per_share']
                 multiplier = dividend['multiplier']
                 self.cash += self.position.get_position(ticker) * dividend_per_share
-                self.position.set_position(self.position.get_position(ticker) * multiplier) 
+                self.position.set_position(ticker,self.position.get_position(ticker) * multiplier) 
             # 处理配股
-            if rights_issue != 0:
+            if rights_issue is not 0:
                 rights_issue_per_stock = rights_issue['rights_issue_per_stock']
                 rights_issue_price = rights_issue['rights_issue_price']
                 transfer_rights_issue_per_stock = rights_issue['transfer_rights_issue_per_stock']
@@ -91,6 +90,7 @@ class Account():
                 
                 # 配股逻辑
                 # 原则:有钱就配,能配多少是多少
+                ## XXX : 写的太多
                 if transfer_rights_issue_price == 0:
                     if self.cash >= rights_issue_maximum_cost:
                         self.cash -= rights_issue_maximum_cost
@@ -120,7 +120,7 @@ class Account():
                                                              
     def _refresh_post_bar(self,event):
         for ticker,value in self.position.position.items():
-            close_price = self.data_proxy.get_current_bar(ticker,self.env.trading_dt)['close_price']
+            close_price = self.env.data_proxy.get_bar(ticker,self.env.calendar_dt)['close_price']
             self.position.set_position_market_value(ticker,value * close_price)
         self.total_asset_value = self.cash + self.position.get_position_value()
         

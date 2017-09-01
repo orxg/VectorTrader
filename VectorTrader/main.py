@@ -52,6 +52,7 @@ def all_system_go(config,strategy_path,mode = 'b'):
     env.capital = capital
     env.frequency = frequency
     env.universe = universe
+    env.mode = mode
     
     ## 读取用户策略空间
     scope = create_base_scope()
@@ -64,14 +65,17 @@ def all_system_go(config,strategy_path,mode = 'b'):
     ## 初始化数据源,动态股票池
     if not env.data_source:
         env.set_data_source(MixedDataSource())   
-    if not env.data_proxy:
-        env.set_data_proxy(DataProxy(env.data_source,mode = mode))
     if not env.calendar:
         env.set_calendar(Calendar(env))
+    if not env.data_proxy:
+        env.set_data_proxy(DataProxy(env.data_source,mode = mode))
+
         
        
     ## 初始化MOD(事件源等)
-    mod_handler = ModHandler()
+    if mode == 'b':
+        MOD_LIST = ['sys_simulation']
+    mod_handler = ModHandler(MOD_LIST)
     mod_handler.set_env(env)
     mod_handler.start_up()
     
@@ -85,9 +89,7 @@ def all_system_go(config,strategy_path,mode = 'b'):
     
     ## 初始化策略
     user_context = Context()
-    
-    history_bars = HistoryBars(env,30)
-    strategy = Strategy(env,scope,user_context,history_bars)
+    strategy = Strategy(env,scope,user_context)
     assert strategy is not None
        
     print '用户策略加载完成'

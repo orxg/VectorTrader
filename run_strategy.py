@@ -12,12 +12,12 @@ config = {'base':
      'end_date':'20170501',
      'frequency':'1d',
      'capital':100000,
-     'universe':['603881']}}
+     'universe':['600340']}}
 
 from VectorTrader import run_file
 
 strategy_path = './test/test_moving_average.py'
-run_file(config,strategy_path,'p')
+run_file(config,strategy_path,'b')
 
 
 

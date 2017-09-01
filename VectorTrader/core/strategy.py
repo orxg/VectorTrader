@@ -11,7 +11,7 @@ from ..events import EVENT
 
 class Strategy():
     
-    def __init__(self,env,scope,context,history_bars):
+    def __init__(self,env,scope,context):
         '''
         用户策略抽象。
         
@@ -26,7 +26,6 @@ class Strategy():
         '''
         self.env = env
         self._user_context = context
-        self._history_bars = history_bars
         
         self._initilize = scope.get('initilize',None)
         self._before_trading = scope.get('before_trading',None)
@@ -53,13 +52,13 @@ class Strategy():
             
     def before_trading(self,event):
         if self._before_trading is not None:
-            self._before_trading(self._user_context,self._history_bars)
+            self._before_trading(self._user_context)
     
     def handle_bar(self,envent):
-        self._handle_bar(self._user_context,self._history_bars)
+        self._handle_bar(self._user_context)
     
     def after_trading(self,event):
         if self._after_trading is not None:
-            self._after_trading(self._user_context,self._history_bars)
+            self._after_trading(self._user_context)
         
 

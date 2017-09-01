@@ -20,7 +20,12 @@ class Event():
         
         
 class EventBus():
-    
+    def __str__(self):
+        event_bus_list = []
+        for name,value in self.event_bus.items():
+            event_bus_list.append([name,value])
+        return str(event_bus_list)
+            
     def __init__(self):
         self.event_bus = defaultdict(list)
         

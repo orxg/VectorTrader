@@ -6,6 +6,8 @@ Created on Mon Aug 28 13:08:35 2017
 """
 
 # history_bars.py
+
+# --------------------------Abandon-----------------------------
 from ..events import EVENT
 from ..utils.convertor import dataframe_to_bars,bars_to_dataframe
 
@@ -39,7 +41,7 @@ class HistoryBars():
             ini_data = self._env.data_proxy.get_history(ticker,
                               adjusted_start_date,
                               end_date,
-                              frequency)
+                              frequency,'-1')
             ini_bars = dataframe_to_bars(ini_data,ticker,frequency)
             self._history_bars[ticker] = ini_bars
             

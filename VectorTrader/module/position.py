@@ -53,3 +53,5 @@ class Position():
         except:
             self.position[ticker] = shares
     
+    def __getitem__(self,ticker):
+        return self.get_position(ticker)
