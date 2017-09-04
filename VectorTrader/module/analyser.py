@@ -21,12 +21,31 @@ class Analyser():
         self.portfolio_net_value = []
         self.position_record = []        
         self.env.event_bus.add_listener(EVENT.POST_BAR,self._record_post_bar)
+        if self.env.mode == 'p':
+            self.env.event_bus.add_listener(EVENT.POST_SETTLEMENT,self._show_post_settlement)
         
+    def get_state(self):
+        return pickle.dumps({'portfolio_net_value':self.portfolio_net_value,
+                 'position_record':self.position_record})
+        
+    def set_state(self,state):
+        state = pickle.loads(state)
+        self.portfolio_net_value = state['portfolio_net_value']
+        self.position_record = state['position_record']
+    
     def _record_post_bar(self,event):
-        trading_dt = self.env.trading_dt
+        calendar_dt = self.env.calendar_dt
         account = self.env.account
-        self.portfolio_net_value.append([trading_dt,account.total_asset_value])
-        self.position_record.append([trading_dt,account.position])
+        self.portfolio_net_value.append([calendar_dt,account.total_asset_value])
+        self.position_record.append([calendar_dt,account.position.position])
+        
+    def _show_post_settlement(self,event):
+        self.stats()
+        print '******' * 10
+        for name,value in self.report.items():
+            print name
+            print value
+            print '******' * 10
         
     def stats(self,name = None,path = None):
         '''
@@ -75,7 +94,8 @@ class Analyser():
         
         with open(out_path,'w') as f: 
             pickle.dump(report,f)
-            
+        self.report = report
+        
     def show_stats(self):
         '''
         展示回测统计结果。

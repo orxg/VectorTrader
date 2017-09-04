@@ -5,7 +5,7 @@ Created on Tue Aug 22 08:33:34 2017
 @author: ldh
 """
 
-# run_file.py
+# run_strategy.py
 
 config = {'base':
     {'start_date':'20140101',

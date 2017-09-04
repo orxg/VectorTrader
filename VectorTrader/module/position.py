@@ -13,6 +13,16 @@ class Position():
         self.position_available = {}
         self.position_market_value = {}
         
+    def get_state(self):
+        state_data = {'position':self.position,'position_available':self.position_available,
+                      'position_market_value':self.position_market_value}
+        return state_data
+    
+    def set_state(self,state):
+        self.position = state['position']
+        self.position_available = state['position_available']
+        self.position_market_value = state['position_market_value']
+        
     def get_position(self,ticker):
         try:
             return self.position[ticker]

@@ -29,6 +29,21 @@ class Order():
         self.direction = direction
         self.order_price = order_price
         
+# --------------------- Abandon Method---------------------        
+    def get_state(self):
+        return {'dt':self.dt,
+                'ticker':self.ticker,
+                'amount':self.amount,
+                'direction':self.direction,
+                'order_price':self.order_price}
+        
+    def set_state(self,state):
+        self.dt = state['dt']
+        self.ticker = state['ticker']
+        self.amount = state['amount']
+        self.direction = state['direction']
+        self.order_price = state['order_price']
+        
 class FillOrder():
     def __init__(self,dt,ticker,amount,direction,transaction_fee,match_price):
         '''
@@ -54,3 +69,20 @@ class FillOrder():
         self.transaction_fee = transaction_fee
         self.match_price = match_price
         
+# --------------------- Abandon Method---------------------
+    def get_state(self):
+        return {'dt':self.dt,
+                'ticker':self.ticker,
+                'amount':self.amount,
+                'direction':self.direction,
+                'transaction_fee':self.transaction_fee,
+                'match_price':self.order_price}
+        
+    def set_state(self,state):
+        self.dt = state['dt']
+        self.ticker = state['ticker']
+        self.amount = state['amount']
+        self.direction = state['direction']
+        self.transaction_fee = state['transaction_fee']
+        self.match_price = state['match_price']
+   

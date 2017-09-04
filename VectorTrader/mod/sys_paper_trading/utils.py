@@ -7,12 +7,16 @@ Created on Wed Aug 23 14:08:21 2017
 
 # calendar_handler.py
 
-import datetime
+import datetime as dt
 
 def is_holiday_today():
-    from VectorTrader.environment import Environment
-    today = datetime.datetime.today()
-    env = Environment.get_instance()
-    data_proxy = env.data_poxy
-    return data_proxy.is_trade_date(today)
+    today = dt.datetime.today()
+    weekday =  dt.datetime.isoweekday(today)
+    if weekday in range(1,6):
+        return False
+    else:
+        return True
 
+
+if __name__ == '__main__':
+    a = is_holiday_today()

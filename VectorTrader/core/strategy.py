@@ -32,9 +32,6 @@ class Strategy():
         self._handle_bar = scope.get('handle_bar',None)
         self._after_trading = scope.get('after_trading',None)
         
-        if self._initilize is not None:
-            self.env.event_bus.add_listener(EVENT.STRATEGY_INITILIZE,
-                                            self.initilize)
         if self._before_trading is not None:
             self.env.event_bus.add_listener(EVENT.BEFORE_TRADING,
                                             self.before_trading)
@@ -45,10 +42,8 @@ class Strategy():
         if self._after_trading is not None:
             self.env.event_bus.add_listener(EVENT.BEFORE_TRADING,
                                             self.after_trading)        
-    
-    def initilize(self,event):
-        if self._initilize is not None:
-            self._initilize(self._user_context)
+    def initilize(self):
+        self._initilize(self._user_context)
             
     def before_trading(self,event):
         if self._before_trading is not None:

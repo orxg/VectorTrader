@@ -87,10 +87,16 @@ class DataProxy():
             self._trade_status_data[ticker] = self.get_trade_status(ticker,start_date,end_date)
             self._list_delist_date_data[ticker] = self.get_list_delist_date(ticker)
                 
-    # 回测 系统内部数据接口
+    # 系统内部数据接口
     ## XX : 大量使用loc
     def get_bar(self,ticker,dt):
-        return self._history_data[ticker].loc[dt]
+        if self.mode == 'b':
+            return self._history_data[ticker].loc[dt]
+        elif self.mode == 'p':
+            frequency = Environment.get_instance().frequency
+            if isinstance(dt,datetime.datetime):
+                dt_ = dt.strftime('%Y%m%d')
+            return self.get_history(ticker,dt_,dt_,frequency,'0').loc[dt]
     
     def get_bars(self,ticker,n,end_date):
         '''
@@ -99,35 +105,72 @@ class DataProxy():
         return self._pregened_history_data[ticker][:end_date].iloc[-n:]
     
     def get_pre_before_trading_dividend(self,ticker,dt):
-        try:
-            return self._dividend_data[ticker].loc[dt]
-        except:
-            return 0
+        if self.mode == 'b':
+            try:
+                return self._dividend_data[ticker].loc[dt]
+            except:
+                return 0
+        elif self.mode == 'p':
+            try:
+                if isinstance(dt,datetime.datetime):
+                    dt_ = dt.strftime('%Y%m%d')
+                return self.get_dividend(ticker,dt_,dt_).loc[dt]
+            except:
+                return 0
     
     def get_pre_before_trading_rights_issue(self,ticker,dt):
-        try:
-            return self._rights_issue_data[ticker].loc[dt]
-        except:
-            return 0
+        if self.mode == 'b':
+            try:
+                return self._rights_issue_data[ticker].loc[dt]
+            except:
+                return 0
+        elif self.mode == 'p':
+            try:
+                if isinstance(dt,datetime.datetime):
+                    dt_ = dt.strftime('%Y%m%d')
+                return self.get_rights_issue(ticker,dt_,dt_).loc[dt]
+            except:
+                return 0
     
     def is_date_trade(self,ticker,dt):
-        list_date,delist_date = self._list_delist_date_data[ticker]
-        if delist_date != 0:
-            if dt >= list_date and dt < delist_date:
-                if self._trade_status_data[ticker].loc[dt,'status'] == 1:
-                    return True
-            else:
-                return False
-        elif delist_date == 0:
-            if dt >= list_date:
-                if self._trade_status_data[ticker].loc[dt,'status'] == 1:
-                    return True
+        '''
+        兼容回测模式与其他模式。
+        '''
+        if self.mode == 'b':
+            list_date,delist_date = self._list_delist_date_data[ticker]
+            if delist_date != 0:
+                if dt >= list_date and dt < delist_date:
+                    if self._trade_status_data[ticker].loc[dt,'status'] == 1:
+                        return True
                 else:
                     return False
-            
+            elif delist_date == 0:
+                if dt >= list_date:
+                    if self._trade_status_data[ticker].loc[dt,'status'] == 1:
+                        return True
+                    else:
+                        return False
         
-    # 模拟 系统内部接口
-    
+        ## FIXME:目前不能在当日17:30前取得当日交易状态的数据
+        elif self.mode == 'p':
+            try:
+                list_date,delist_date = self.get_list_delist_date(ticker)
+                trade_status = self.get_trade_status(ticker,dt,dt)
+                if delist_date != 0:
+                    if dt >= list_date and dt < delist_date:
+                        if trade_status.loc[dt,'status'] == 1:
+                            return True
+                    else:
+                        return False
+                elif delist_date == 0:
+                    if dt >= list_date:
+                        if trade_status.loc[dt,'status'] == 1:
+                            return True
+                        else:
+                            return False      
+            except:
+                return True
+        
     # 一般数据接口
     def get_history(self,ticker,start_date,end_date,frequency,kind):
         '''
