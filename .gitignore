@@ -8,3 +8,12 @@ __pycache__/
 
 # back
 *.bak
+
+# strategy
+strategy/
+
+# out
+out/
+
+# persist
+persist/
