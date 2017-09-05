@@ -6,6 +6,8 @@ Created on Sun Aug 20 20:40:35 2017
 """
 
 # main.py
+import datetime
+
 from .events import EVENT,Event
 from .environment import Environment
 from .core.engine import Engine
@@ -20,9 +22,11 @@ from .module.analyser import Analyser
 from .module.calendar import Calendar
 from .mod import ModHandler
 from .utils.create_base_scope import create_base_scope
+from .utils.persist_provider import DiskPersistProvider
+from .utils.persist_helper import PersistHelper
 from .api.helper import get_apis
 
-def all_system_go(config,strategy_path,mode = 'b'):
+def all_system_go(config,strategy_path,mode = 'b',persist_path = None):
     '''
     主程序。启动回测/模拟/实盘。
     
@@ -34,14 +38,25 @@ def all_system_go(config,strategy_path,mode = 'b'):
             策略路径
         mode
             模式 'b','p','r'
+        persist_path
+            在模拟状态下必须给出持久化路径
     '''
     env = Environment(config)
     
-    start_date = config['base']['start_date']
-    end_date = config['base']['end_date']
-    capital = config['base']['capital']
-    universe = config['base']['universe']
-    frequency = config['base']['frequency']
+    if mode == 'b':
+        MOD_LIST = ['sys_simulation']
+        start_date = config['base']['start_date']
+        end_date = config['base']['end_date']
+        capital = config['base']['capital']
+        universe = config['base']['universe']
+        frequency = config['base']['frequency']
+    elif mode == 'p':
+        MOD_LIST = ['sys_paper_trading']    
+        start_date = datetime.datetime.today().strftime('%Y%m%d')
+        end_date = start_date
+        capital = config['base']['capital']
+        universe = config['base']['universe']
+        frequency = config['base']['frequency']        
     
     # 初始化环境
     ## 环境基本参数
@@ -58,7 +73,7 @@ def all_system_go(config,strategy_path,mode = 'b'):
     apis = get_apis()
     scope.update(apis)
     scope = strategy_loader.load(scope)
-    print '成功加载策略空间'
+    print 'Loading strategy scope successfully'.upper()
     
     ## 初始化数据源,动态股票池
     if not env.data_source:
@@ -71,29 +86,41 @@ def all_system_go(config,strategy_path,mode = 'b'):
         
        
     ## 初始化MOD(事件源等)
-    if mode == 'b':
-        MOD_LIST = ['sys_simulation']
     mod_handler = ModHandler(MOD_LIST)
     mod_handler.set_env(env)
     mod_handler.start_up()
     
     ## 初始化account,dynamic_universe
-    env.set_dynamic_universe(DynamicUniverse(env)) # 此处dynamic_universe要在account之前以保证监听函数靠前
+    dynamic_universe = DynamicUniverse()
+    env.set_dynamic_universe(dynamic_universe) # 此处dynamic_universe要在account之前以保证监听函数靠前
     env.set_account(Account(env,capital)) # 此处account要在analyser之前
     env.set_analyser(Analyser(env))
-    print '成功初始化运行环境'
+    print 'Initilizing running environment successfully'.upper()
     
     ## 初始化策略
     user_context = Context()
     strategy = Strategy(env,scope,user_context)
     assert strategy is not None
-       
-    print '用户策略加载完成'
+    strategy.initilize()
     
+    print 'Loading strategy successfully'.upper()
+    
+    ## 进行持久化注册
+    if mode == 'p':
+        persist_provider = DiskPersistProvider(persist_path)
+        persist_helper = PersistHelper(persist_provider,env.event_bus,mode)
+        persist_helper.rigister('user_context',user_context)
+        persist_helper.rigister('account',env.account)
+        persist_helper.rigister('analyser',env.analyser)
+        
+        ### 从硬盘中恢复到最新的状态
+        persist_helper.restore()
+        
+        print 'Restore successfully'.upper()
+        
     # 启动引擎
-    print '开始运行'
+    print 'Start running...'.upper()
     env.event_bus.publish_event(Event(EVENT.SYSTEM_INITILIZE))
-    env.event_bus.publish_event(Event(EVENT.STRATEGY_INITILIZE))
     Engine(env).run()
 
     # report

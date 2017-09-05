@@ -6,6 +6,8 @@ Created on Mon Aug 21 11:18:32 2017
 """
 
 # context.py
+import six
+import pickle
 
 from ..environment import Environment
 
@@ -26,6 +28,26 @@ class Context():
     '''
     def __init__(self):
         pass
+    
+    def get_state(self):
+        state_data = {}
+        for key,value in six.iteritems(self.__dict__):
+            if key.startswith('_'):
+                continue
+            try:
+                state_data[key] = pickle.dumps(value)
+            except:
+                print '{} can not be pickled'.format(key)
+        return pickle.dumps(state_data)
+            
+    def set_state(self,state):
+        state_data = pickle.loads(state)
+        for key,value in six.iteritems(state_data):
+            try:
+                self.__dict__[key] = pickle.loads(value)
+            except:
+                print '{} can not be loaded'.format(key)
+         
         
     @property
     def universe(self):
@@ -56,15 +78,16 @@ class Context():
         return Environment.get_instance().account.total_asset_value
     
     def get_history(self,n):
+		'''
+		返回过去N日的前复权数据。
+		'''
         env = Environment.get_instance()
-        if env.mode == 'b':
-            calendar = env.calendar
-            current_date = env.calendar_dt
-            end_date = calendar.adjust_date(current_date,-1)
-            history = {}
-            for ticker in env.universe:
-                history[ticker] = env.data_proxy.get_bars(ticker,n,end_date)
-            return history
+		previous_date = self.previous_date
+		start_date = env.calendar.adjust_date(previous_date,-n)
+		history = {}
+		for ticker in env.universe:
+			history[ticker] = env.data_proxy.get_bars(ticker,n,previous_date)
+		return history
             
     
     

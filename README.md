@@ -7,6 +7,15 @@
 3. 在data_source中的mixed_data_source中根据Readme进行调整。
 
 # update log
+## 2017-09-05
+1. get_symbols现在基于tushare支持当前多种成分股
+2. 解决模拟中无法剔除停牌股票的问题
+
+## 2017-09-04
+1. 增加了持久化服务提供对象DiskPersistProvider和PersistHelper
+2. 给context,account,position,analyser加入了持久化方法
+3. 运行了buy_and_hold策略模拟,可以运行，但是有问题
+
 ## 2017-09-01
 1. 更真实的回测(不复权数据 + 分红送股 + 配股;动态股票池，每日自动剔除未上市、停牌、退市股票)
 2. 修改了回测取数据的方法，不再采用bar数据结构，不再采用history_bar对象，其功能整合到context中。

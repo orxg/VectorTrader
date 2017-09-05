@@ -15,8 +15,8 @@ mod_directory = cwd + '\\VectorTrader\\mod\\'
 sys.path.append(cwd)
 sys.path.append(mod_directory)
 
-def run_file(config,strategy_path,mode = 'b'):
+def run_file(config,strategy_path,mode = 'b',persist_path = None):
     from .main import all_system_go
-    all_system_go(config,strategy_path,mode)
+    all_system_go(config,strategy_path,mode,persist_path)
     
 

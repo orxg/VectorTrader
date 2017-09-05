@@ -2,4 +2,5 @@ Anaconda2=4.4.0
 pymysql=0.7.11
 tushare=0.8.7
 WindPy=1.0
+jsonpickle=0.9.5
 matlab R2016a

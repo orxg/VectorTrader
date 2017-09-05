@@ -14,7 +14,7 @@ class Calendar():
         self._env = env
         self.data_source = self._env.data_source
         self.start_date = self._env.start_date
-        self.end_date = self._env.end_date
+        self.end_date = dt.datetime.today().strftime('%Y%m%d')
         self._calendar = pd.Series(self.data_source.get_calendar_days('19910101',self.end_date))
 
     def adjust_date(self,origin_date,step):

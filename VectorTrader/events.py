@@ -44,9 +44,6 @@ class EVENT(Enum):
     # 系统初始化
     SYSTEM_INITILIZE = 'system_initilize'
     
-    # 策略初始化
-    STRATEGY_INITILIZE = 'strategy_initilize'
-    
     # 交易前
     PRE_BEFORE_TRADING = 'pre_before_trading'
     BEFORE_TRADING = 'before_trading'

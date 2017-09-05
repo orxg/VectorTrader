@@ -6,6 +6,8 @@ Created on Sun Aug 20 14:11:54 2017
 """
 
 # account.py
+
+import pickle
 from .position import Position
 from ..events import EVENT
 
@@ -28,7 +30,23 @@ class Account():
         self.env.event_bus.add_listener(EVENT.POST_BAR,self._refresh_post_bar) # 确保第一个接收事件
         self.env.event_bus.add_listener(EVENT.SETTLEMENT,self._refresh_settlement)
         
-        
+    def get_state(self):
+        state_data = {'cash':self.cash,
+                      'total_asset_value':self.total_asset_value,
+                      'position':self.position.get_state(),
+                      'order_passed':self.order_passed,
+                      'order_canceled':self.order_canceled}
+        state_data = pickle.dumps(state_data)
+        return state_data
+            
+    def set_state(self,state):
+        state = pickle.loads(state)
+        self.cash = state['cash']
+        self.total_asset_value = state['total_asset_value']
+        self.position.set_state(state['position'])
+        self.order_passed = state['order_passed']
+        self.order_canceled = state['order_canceled']
+                
     def _handle_fill_order(self,event):
         '''
         监听Broker返回的FillOrder事件。
