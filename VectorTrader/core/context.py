@@ -54,6 +54,10 @@ class Context():
         return Environment.get_instance().get_universe()
     
     @property
+    def user_universe(self):
+        return Environment.get_instance().universe
+    
+    @property
     def current_date(self):
         return Environment.get_instance().calendar_dt
     
