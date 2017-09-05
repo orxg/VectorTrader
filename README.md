@@ -7,6 +7,10 @@
 3. 在data_source中的mixed_data_source中根据Readme进行调整。
 
 # update log
+## 2017-09-05
+1. get_symbols现在基于tushare支持当前多种成分股
+2. 解决模拟中无法剔除停牌股票的问题
+
 ## 2017-09-04
 1. 增加了持久化服务提供对象DiskPersistProvider和PersistHelper
 2. 给context,account,position,analyser加入了持久化方法

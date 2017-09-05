@@ -43,7 +43,7 @@ class PaperTradingEventSource():
             now = datetime.datetime.now()
             now_time = now.strftime('%H:%M:%S')
             now_date = now.replace(hour=0,minute=0,second=0,microsecond=0)
-            if now_time >= '08:30:00' and datetime.date.today() > self.before_trading_date:
+            if now_time >= '08:40:00' and datetime.date.today() > self.before_trading_date:
                 self._event_queue.put((now_date,now,EVENT.BEFORE_TRADING))
                 self.before_trading_date = datetime.date.today()
             elif now_time >= '15:10:00' and datetime.date.today() > self.bar_date:

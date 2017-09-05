@@ -13,15 +13,20 @@ import pandas as pd
 
 
 ## Wind专有
-def symbol_convertor_wind(symbol):
+def wind_symbol_convert(symbol):
     if symbol[0] == '6':
         wind_symbol = symbol + '.SH'
     else:
         wind_symbol = symbol + '.SZ'
     return wind_symbol
 
+def wind_symbol_back_convert(symbol):
+    return symbol[:6]
+
+wind_symbol_back_convert = np.frompyfunc(wind_symbol_back_convert,1,1)
+
 ## MATLAB专有
-def convert_time(date_time_ordinal):
+def matlab_time_convert(date_time_ordinal):
     '''
     转换时间(从公元前1年1月1日),支持到分钟级。
     已经与matlab一致。
@@ -47,7 +52,7 @@ def convert_time(date_time_ordinal):
     date_time = date_time + time_adjustor
     return date_time
 
-convert_time = np.frompyfunc(convert_time,1,1)
+matlab_time_convert = np.frompyfunc(matlab_time_convert,1,1)
 
 def datetime_format_convertor(datetime_str):
     '''

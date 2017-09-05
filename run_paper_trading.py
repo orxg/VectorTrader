@@ -15,7 +15,6 @@ config = {'base':
      'universe':['600381']}}
 
 from VectorTrader import run_file
-
 strategy_path = './test/test_buy_and_hold.py'
 run_file(config,strategy_path,mode = 'p',
          persist_path = 'G:\\Work_ldh\\Backtest\\VectorTrader\\persist')

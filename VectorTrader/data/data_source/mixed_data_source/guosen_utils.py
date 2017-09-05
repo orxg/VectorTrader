@@ -10,7 +10,7 @@ Created on Wed Aug 30 15:21:49 2017
 import datetime
 import pandas as pd
 import pymssql
-from utils import convert_time,convert_to_float
+from utils import matlab_time_convert,convert_to_float
 
 server = '172.19.62.183'
 user = 'DataAdmin'
@@ -21,20 +21,21 @@ cur = con.cursor()
 def get_dividend(ticker,start_date,end_date):
     '''
     获取股票时间段内实施的分红送股转增数据。
+    
     Parameters
     ----------
-        ticker
-            '600340'
-        start_date
-            '20100101'
-        end_date
-            '20150101'
+    ticker
+        '600340'
+    start_date
+        '20100101'
+    end_date
+        '20150101'
     Returns
     --------
-        DataFrame
-            index XD_date
-            columns XD_date,dividend_per_share,multiplier
-                    (除权除息日,每股分红,分红后每股乘数)
+    DataFrame
+        index XD_date
+        columns XD_date,dividend_per_share,multiplier
+                (除权除息日,每股分红,分红后每股乘数)
     '''
     sql_select = '''
     SELECT [stockcode]
@@ -56,7 +57,7 @@ def get_dividend(ticker,start_date,end_date):
     df['dividend_per_share'] = convert_to_float(df[u'cash_dividend_numerator_after_tax']) / 10.0
     df['multiplier'] = 1 + (convert_to_float(df[u'stock_dividend_numerator']) + \
                                                   convert_to_float(df[u'transfer_numerator'])) / 10.0
-    df['XD_date'] = convert_time(df['XD_date'])
+    df['XD_date'] = matlab_time_convert(df['XD_date'])
     df = df[['XD_date','dividend_per_share','multiplier']].set_index('XD_date',drop = False)
     df = df.sort_index()
     df = df[start_date:end_date]
@@ -65,22 +66,23 @@ def get_dividend(ticker,start_date,end_date):
 def get_rights_issue(ticker,start_date,end_date):
     '''
     获取股票已实施配股数据。
+    
     Parameters
     ----------
-        ticker
-            '600340'
-        start_date
-            '20100101'
-        end_date
-            '20150101'
+    ticker
+        '600340'
+    start_date
+        '20100101'
+    end_date
+        '20150101'
     Returns
     --------
-        DataFrame
-            index ex_rights_date
-            columns 
-                'ex_rights_date','rights_issue_per_stock','rights_issue_price',
-                'transfer_rights_issue_per_stock','transfer_price'
-                    (除权日,每股配股,配股价，每股转配，每股转配价)
+    DataFrame
+        index ex_rights_date
+        columns 
+            'ex_rights_date','rights_issue_per_stock','rights_issue_price',
+            'transfer_rights_issue_per_stock','transfer_price'
+                (除权日,每股配股,配股价，每股转配，每股转配价)
     '''
     sql_select = '''
     SELECT [除权日]
@@ -98,7 +100,7 @@ def get_rights_issue(ticker,start_date,end_date):
                'transfer_rights_issue_numerator','transfer_rights_issue_fee']
     df = pd.DataFrame(data,columns = columns)
     df = df.fillna(0)
-    df['ex_rights_date'] = convert_time(df['ex_rights_date'])
+    df['ex_rights_date'] = matlab_time_convert(df['ex_rights_date'])
     df['rights_issue_price'] = convert_to_float(df['rights_issue_price'])
     df['rights_issue_per_stock'] = \
             convert_to_float(df['rights_issue_numerator']) / 10.0
@@ -117,24 +119,25 @@ def get_rights_issue(ticker,start_date,end_date):
 def get_trade_status(ticker,start_date,end_date):
     '''
     获取股票交易状态。
+    
     Parameters
     -----------
-        ticker
-            股票代码
-        start_date
-            '20100101'
-        end_date
-            '20150101'
+    ticker
+        股票代码
+    start_date
+        '20100101'
+    end_date
+        '20150101'
     Returns
     --------
-        DataFrame 
-            index date_time
-            columns (date_time,ticker,status)
+    DataFrame 
+        index date_time
+        columns (date_time,ticker,status)
     Notes
     -------
-        status 
-            正常交易: 1
-            停牌: 0
+    status 
+        正常交易: 1
+        停牌: 0
     '''
     sql_select = '''
     SELECT [numtime]
@@ -147,7 +150,7 @@ def get_trade_status(ticker,start_date,end_date):
     data = cur.fetchall()
     columns = ['date_time','ticker','status']
     df = pd.DataFrame(data,columns = columns)
-    df['date_time'] = convert_time(df['date_time'])
+    df['date_time'] = matlab_time_convert(df['date_time'])
     df = df.set_index('date_time',drop = False)
     df = df.sort_index()
     df['status'] = df['status'].apply(lambda x : 1 if x != 0 else 0)
@@ -157,14 +160,15 @@ def get_trade_status(ticker,start_date,end_date):
 def get_list_delist_date(ticker):
     '''
     获取股票上市与退市日期。若没有退市，则退市为0.
+    
     Parameters
     -----------
-        ticker
-            600340
+    ticker
+        600340
     Returns
     --------
-        tuple
-            (list_date,delist_date) datetime类型
+    tuple
+        (list_date,delist_date) datetime类型
     '''
     sql_select = '''
     SELECT  [股票代码]

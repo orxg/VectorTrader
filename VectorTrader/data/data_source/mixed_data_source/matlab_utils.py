@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import matlab.engine
 
-from utils import convert_time,datetime_format_convertor
+from utils import matlab_time_convert,datetime_format_convertor
 
 eng = matlab.engine.start_matlab()
 
@@ -54,7 +54,7 @@ def get_matlab_history(ticker,start_date,end_date,frequency,kind):
     data = np.array(data)
     columns = ['num_time','open_price','high_price','low_price','close_price','volume','amount']
     df = pd.DataFrame(data,columns = columns)
-    df['date_time'] = convert_time(df['num_time'])
+    df['date_time'] = matlab_time_convert(df['num_time'])
     df.drop('num_time',axis = 1,inplace = True)
     df.set_index('date_time',inplace = True)
     return df

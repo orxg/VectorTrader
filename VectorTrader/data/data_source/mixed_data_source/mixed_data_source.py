@@ -26,31 +26,38 @@ class MixedDataSource(AbstractDataSource):
     def __init__(self):
         pass
     
-    def get_symbols(self):
+    def get_symbols(self,symbol):
         '''
-        获取全A历史股票代码。
-        下一步支持板块，支持概念，支持停牌退市，支持按时间段选取。
-        Returns
-        ---------
-            list
+        获取股票代码。
         '''
-        return matlab_utils.get_matlab_symbols()
+        return tushare_utils.get_symbols(symbol)
     
     def get_history(self,ticker,start_date,end_date,frequency,kind):
         '''
         获取单只股票交易行情。
+        
         Returns
         --------
-            DataFrame(date_time,open_price,high_price,low_price,close_price,volume)
+        DataFrame
+            (date_time,open_price,high_price,low_price,close_price,volume)
         '''
         return matlab_utils.get_matlab_history(ticker,start_date,end_date,
                                                frequency,kind)
 
     def get_calendar_days(self,start_date,end_date):
         '''
+        获取指定时间段内的交易日。
+        
+        Parameters
+        ----------
+        start_date
+            '20150101'
+        end_date
+            '20160101'
+        
         Returns
         --------
-            Series [pd.Timestamp]
+        Series [pd.Timestamp]
         '''
         return tushare_utils.get_calendar_days(start_date,end_date)
     
@@ -63,6 +70,7 @@ class MixedDataSource(AbstractDataSource):
     def get_stocks_basics(self,ticker_list):
         '''
         获取多只股票基本信息。
+        
         Returns
         -------
             DataFrame
@@ -87,6 +95,12 @@ class MixedDataSource(AbstractDataSource):
         '''
         return guosen_utils.get_trade_status(ticker,start_date,end_date)
     
+    def get_suspends(self,trade_date):
+        '''
+        停牌股票。
+        '''
+        return wind_utils.get_suspends(trade_date)
+    
     def get_list_delist_date(self,ticker):
         '''
         上市日期，退市日期。
@@ -95,16 +109,16 @@ class MixedDataSource(AbstractDataSource):
     
     def get_factor(self,factor,ticker,start_date,end_date):
         '''
+        
         Returns
         --------
-            DataFrame
+        DataFrame
         '''
         pass
     
     def get_industry_factor(self,industry_wind_index,start_date,end_date):
         '''
         获取行业因子数据。
-        数据来自Wind.
         '''
         pass
     
