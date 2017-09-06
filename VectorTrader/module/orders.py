@@ -8,12 +8,14 @@ Created on Mon Aug 21 10:16:27 2017
 # orders.py
 
 class Order():
-    def __init__(self,dt,ticker,amount,direction,order_price):
+    def __init__(self,calendar_dt,trading_dt,ticker,amount,direction,order_price):
         '''
         Parameters
         ----------
-            dt
-                datetime
+            calendar_dt
+                datetime 交易日日期
+            trading_dt
+                datetime 交易日时间
             ticker
                 股票代码
             amount
@@ -23,7 +25,8 @@ class Order():
             order_price
                 出价
         '''
-        self.dt = dt
+        self.calendar_dt = calendar_dt
+        self.trading_dt = trading_dt
         self.ticker = ticker
         self.amount = amount
         self.direction = direction
@@ -31,14 +34,16 @@ class Order():
         
 # --------------------- Abandon Method---------------------        
     def get_state(self):
-        return {'dt':self.dt,
+        return {'calendar_dt':self.calendar_dt,
+                'trading_dt':self.trading_dt,
                 'ticker':self.ticker,
                 'amount':self.amount,
                 'direction':self.direction,
                 'order_price':self.order_price}
         
     def set_state(self,state):
-        self.dt = state['dt']
+        self.calendar_dt = state['calendar_dt']
+        self.trading_dt = state['trading_dt']
         self.ticker = state['ticker']
         self.amount = state['amount']
         self.direction = state['direction']

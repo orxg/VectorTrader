@@ -69,4 +69,4 @@ def get_factor(ticker,start_date,end_date,frequency):
     pass
 
 if __name__ == '__main__':
-    hist_data = get_matlab_history('600340','20160101','20160201','1d','0')
+    hist_data = get_matlab_history('600340','20170906','20170906','1d','0')

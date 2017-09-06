@@ -33,7 +33,7 @@ class EventBus():
         self.event_bus[event_type].append(listener)
         
     def prepend_listener(self,event_type,listener):
-        self.event_bus[event_type].append(listener)
+        self.event_bus[event_type].insert(0,listener)
         
     def publish_event(self,event):
         event_type = event.event_type

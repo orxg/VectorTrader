@@ -76,7 +76,7 @@ class PaperTradingEventSource():
                 print 'NOW,THE EVENT IS %s'%event_type.name
                 yield Event(event_type,calendar_dt = date,trading_dt = date_time)
 
-# ------------------------ Abondan ------------------------------------                
+# ------------------------ Abandon ------------------------------------                
     def get_state(self):
         state_data = {}
         for key,value in six.iteritems(self.__dict__):

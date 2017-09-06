@@ -37,11 +37,12 @@ class Strategy():
                                             self.before_trading)
         if self._handle_bar is None:
             print('handle_bar is not implemented')
-        self.env.event_bus.add_listener(EVENT.BAR,
+        self.env.event_bus.prepend_listener(EVENT.BAR,
                                         self.handle_bar)
         if self._after_trading is not None:
             self.env.event_bus.add_listener(EVENT.BEFORE_TRADING,
-                                            self.after_trading)        
+                                            self.after_trading) 
+            
     def initilize(self):
         self._initilize(self._user_context)
             

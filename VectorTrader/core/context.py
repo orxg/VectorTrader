@@ -27,7 +27,7 @@ class Context():
             DataFrame (open_price,high_price,low_price,close_price)                
     '''
     def __init__(self):
-        pass
+        self.signal_post_before_trading = None # 盘前信息
     
     def get_state(self):
         state_data = {}

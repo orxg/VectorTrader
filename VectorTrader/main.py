@@ -51,7 +51,7 @@ def all_system_go(config,strategy_path,mode = 'b',persist_path = None):
         universe = config['base']['universe']
         frequency = config['base']['frequency']
     elif mode == 'p':
-        MOD_LIST = ['sys_paper_trading']    
+        MOD_LIST = ['sys_email_sender','sys_paper_trading']    
         start_date = datetime.datetime.today().strftime('%Y%m%d')
         end_date = start_date
         capital = config['base']['capital']

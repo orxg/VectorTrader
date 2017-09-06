@@ -27,7 +27,7 @@ def order(ticker,amount,direction,order_price = None):
             open_price =  env.data_proxy.get_bar(ticker,calendar_dt)['open_price']
             order_price = open_price
             
-        order_obj = Order(env.trading_dt,ticker,
+        order_obj = Order(env.calendar_dt,env.trading_dt,ticker,
                           amount,direction,order_price)
         order_event = Event(EVENT.ORDER,calendar_dt = env.calendar_dt,
                                     trading_dt = env.trading_dt,
