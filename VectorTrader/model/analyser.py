@@ -72,6 +72,17 @@ class Analyser():
         self.bar_return = calc_bar_return(self.portfolio_value['total_asset_value'])
         self.return_pnl = calc_return_pnl(self.portfolio_value['total_asset_value'])
         
+        # 指标计算
+        ## 总收益率
+        
+        ## 年化收益率
+        
+        ## SharpRatio
+        
+        ## 最大回撤
+        
+        ## 最大回撤期
+        
         # 订单记录
         self.order_passed = pd.DataFrame(self.env.account.order_passed,columns = ['calendar_dt',
                                                                                    'trading_dt',
@@ -103,8 +114,9 @@ class Analyser():
         sns.set_style('dark')
         print self.order_passed
         print self.order_canceled
-        self.return_pnl.plot(figsize = (20,8))
-        
+        ax = self.return_pnl.plot(figsize = (20,8))
+        y_vals = ax.get_yticks()
+        ax.set_yticklabels(['{:3.2f}%'.format(x * 100) for x in y_vals])
     
     
     

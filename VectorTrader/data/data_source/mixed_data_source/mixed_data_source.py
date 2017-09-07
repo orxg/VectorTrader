@@ -107,18 +107,25 @@ class MixedDataSource(AbstractDataSource):
         '''
         return guosen_utils.get_list_delist_date(ticker)
     
-    def get_factor(self,factor,ticker,start_date,end_date):
+    def get_stock_factors(self,ticker,field,start_date,end_date):
         '''
-        
-        Returns
-        --------
-        DataFrame
+        获取股票因子数据。
         '''
-        pass
+        return wind_utils.get_stock_factors(ticker,field,start_date,end_date)
     
-    def get_industry_factor(self,industry_wind_index,start_date,end_date):
+    def get_industry_factors(self,industry_wind_id,field,start_date,end_date):
         '''
         获取行业因子数据。
         '''
-        pass
+        return wind_utils.get_industry_factors(industry_wind_id,field,
+                                               start_date,end_date)
+        
+    def get_stock_factors_with_industry(ticker,field,start_date,end_date):
+        '''
+        获取股票因子数据附带对应行业因子数据。
+        '''
+        return wind_utils.get_stock_factors_with_industry(ticker,field,
+                                                          start_date,end_date)
+        
+        
     

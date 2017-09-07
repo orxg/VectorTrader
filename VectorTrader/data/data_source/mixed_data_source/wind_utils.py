@@ -14,7 +14,8 @@ import numpy as np
 from WindPy import *
 import tushare as ts
 
-from utils import wind_symbol_convert,wind_symbol_back_convert,datetime_format_convertor
+from utils import wind_symbol_convert,wind_symbol_back_convert,\
+                    datetime_format_convertor
 
 w.start()
 
@@ -22,9 +23,10 @@ w.start()
 def get_all_symbols():
     '''
     返回全A股的股票代码。
+    
     Returns
     ----------
-        list
+    list
     '''
     symbols = ts.get_stock_basics().index.tolist()
     return symbols
@@ -35,12 +37,21 @@ def get_trading_days(start_date,end_date):
     return trading_days
 
 
-def get_basics(ticker,add_ticker = True):
+def get_basics(ticker,industry_type = 2,add_ticker = True):
     '''
     获取单只股票的基本信息。
+    
+    Parameters
+    ----------
+    ticker
+        股票代码
+    industry_type
+        返回的行业级别，默认为2级行业
+    add_ticker
+        是否在结果中添加ticker
     Return
     ---------
-        DataFrame
+    DataFrame
     '''
     current_date = dt.date.today().strftime('%Y-%m-%d')
     wind_ticker = wind_symbol_convert(ticker)
@@ -67,8 +78,8 @@ def get_stock_list_basics(ticker_list):
     获取股票列表的基本信息。
     Parameters
     -----------
-        ticker_list
-            ['600340','000001']
+    ticker_list
+        ['600340','000001']
     Returns
     ----------
         DataFrame
@@ -101,12 +112,12 @@ def get_stock_daily_price(ticker,start_date,end_date,add_ticker = True,
     只支持单只股票。
     Parameters
     ----------
-        ticker
-            股票代码
-        start_date
-            '20150101'
-        end_date
-        
+    ticker
+        股票代码
+    start_date
+        '20150101'
+    end_date
+        '20160101'
     Retruns
     --------
         DataFrame
@@ -155,11 +166,124 @@ def get_suspends(trade_date):
                           end_date = trade_date))
     return wind_symbol_back_convert(data.Data[1]).tolist()
     
-def get_factors():
+
+def get_industry_factors(industry_wind_id,field,start_date,end_date,
+                         add_industry_id = True):
     '''
-    获取因子数据。
+    获取万得行业指数数据。
+    
+    Parameters
+    -----------
+    indusry_wind_id
+        万得行业指数代码,'882100.WI'
+    field
+        所取字段 ['pe_ttm','pb_lf']
+    start_date
+        开始日期，交易日日期, 20160104，若非交易日无法取到数据
+    end_date
+        结束日期
+    add_industry_id
+        是否添加行业代码作为左后一列
+    Returns
+    --------
+    DataFrame
+        columns:wind_id,field_1,field_2,....,field_n,industry_wind_id
+    
+    Notes
+    ------
+    估值类因子
+        'pe_ttm'
+            市盈率TTM
+        'pb_mrq'
+            市净率MRQ(most recent quarter)
+        'pb_lf'
+            市净率LF(last file)
+        'ps_ttm'
+            市销率TTM
+        'pcf_ocf_ttm'
+            市现率TTM(经营现金流)
+                    
     '''
-    pass
+    field_str = ','.join(field)
+    data = w.wsd(industry_wind_id, field_str, 
+          datetime_format_convertor(start_date),
+          datetime_format_convertor(end_date), "")
+    time_series = pd.Series(data.Times)
+    time_series = time_series.apply(lambda x:x.replace(microsecond = 0))
+    df = pd.DataFrame(data.Data,index = field,
+                      columns = time_series).T
+                      
+    if add_industry_id:
+        df['industry_wind_id'] = industry_wind_id
+    return df
+
+def get_stock_factors(ticker,field,start_date,end_date,add_ticker = True):
+    '''
+    获取股票因子数据。
+    获取万得行业指数数据。
+    仅获得交易日数据。
+    
+    Parameters
+    -----------
+    ticker
+        股票代码,'600340'
+    field
+        所取字段 ['pe_ttm','pb_lf']
+    start_date
+        开始日期，交易日日期, 20160104，若非交易日无法取到数据
+    end_date
+        结束日期
+    add_ticker
+        是否添加代码作为左后一列
+    Returns
+    --------
+    DataFrame
+        columns:wind_id,field_1,field_2,....,field_n,industry_wind_id
+    
+    Notes
+    ------
+    估值类因子
+        'pe_ttm'
+            市盈率TTM
+        'pb_mrq'
+            市净率MRQ(most recent quarter)
+        'pb_lf'
+            市净率LF(last file)
+        'ps_ttm'
+            市销率TTM
+        'pcf_ocf_ttm'
+            市现率TTM(经营现金流)                    
+    '''
+    field_str = ','.join(field)
+    ticker_wind = wind_symbol_convert(ticker)
+    data = w.wsd(ticker_wind, field_str, 
+                 datetime_format_convertor(start_date),
+                 datetime_format_convertor(end_date), "")
+    time_series = pd.Series(data.Times)
+    time_series = time_series.apply(lambda x:x.replace(microsecond = 0))
+    df = pd.DataFrame(data.Data,index = field,
+                      columns = time_series).T
+    if add_ticker:
+        df['ticker'] = ticker
+    return df
+
+def get_stock_factors_with_industry(ticker,field,start_date,end_date):
+    '''
+    获取股票因子数据,以及对应的行业因子数据。目前支持二级行业。
+    '''
+    stock_basics = get_basics(ticker)
+    industry_wind_id = stock_basics['indexcode_wind'][0]
+    stock_factors = get_stock_factors(ticker,field,start_date,end_date)
+    industry_factors = get_industry_factors(industry_wind_id,field,start_date,
+                                            end_date)
+    industry_field = []
+    for each in field:
+        industry_field.append('industry_' + each)
+    columns = zip(field,industry_field)
+    columns = dict(columns)
+    industry_factors.rename(columns = columns,inplace = True)
+    df = stock_factors.join(industry_factors)
+    return df
 
 # ------------------- Abandon ---------------------------------
 def get_dividend(ticker,trade_date):
@@ -190,4 +314,7 @@ def get_dividend(ticker,trade_date):
     return df
 
 if __name__ == '__main__':
-    data = get_dividend('600340','20150101','20160101')
+    data = get_stock_factor_with_industry('600340',['pe_ttm','ps_ttm'],'20150304','20150304')
+#==============================================================================
+#     data = get_stock_factors('600340',['pe_ttm','ps_ttm'],'20170101','20170304')
+#==============================================================================

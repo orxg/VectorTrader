@@ -13,7 +13,7 @@ __all__ = [
 
 from ..events import EVENT,Event
 from ..environment import Environment
-from ..module.orders import Order
+from ..model.orders import Order
 
 def order(ticker,amount,direction,order_price = None):
     '''

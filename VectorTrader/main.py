@@ -17,9 +17,9 @@ from .core.dynamic_universe import DynamicUniverse
 from .core.context import Context
 from .data.data_proxy import DataProxy
 from .data.data_source.mixed_data_source.mixed_data_source import MixedDataSource
-from .module.account import Account
-from .module.analyser import Analyser
-from .module.calendar import Calendar
+from .model.account import Account
+from .model.analyser import Analyser
+from .model.calendar import Calendar
 from .mod import ModHandler
 from .utils.create_base_scope import create_base_scope
 from .utils.persist_provider import DiskPersistProvider

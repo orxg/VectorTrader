@@ -82,16 +82,16 @@ class Context():
         return Environment.get_instance().account.total_asset_value
     
     def get_history(self,n):
-		'''
-		返回过去N日的前复权数据。
-		'''
+        '''
+    		返回过去N日的前复权数据。
+    		'''
         env = Environment.get_instance()
-		previous_date = self.previous_date
-		start_date = env.calendar.adjust_date(previous_date,-n)
-		history = {}
-		for ticker in env.universe:
-			history[ticker] = env.data_proxy.get_bars(ticker,n,previous_date)
-		return history
+        previous_date = self.previous_date
+        history = {}
+        for ticker in env.universe:
+            history[ticker] = env.data_proxy.get_bars(ticker,n,previous_date)
+        return history
+
             
     
     
