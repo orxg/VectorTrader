@@ -12,7 +12,7 @@ config = {'base':
      'end_date':'20170501',
      'frequency':'1d',
      'capital':100000,
-     'universe':['600381','000001']}}
+     'universe':['sz50']}}
 
 from VectorTrader import run_file
 

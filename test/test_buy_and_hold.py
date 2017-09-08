@@ -18,7 +18,7 @@ def handle_bar(context):
     if not context.fired:
         for ticker in context.universe:
             order(ticker,1000,1)
-            context.fired = True
+        context.fired = True
         
 def after_trading(context):
     pass

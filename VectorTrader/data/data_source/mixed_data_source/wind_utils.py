@@ -220,7 +220,6 @@ def get_industry_factors(industry_wind_id,field,start_date,end_date,
 def get_stock_factors(ticker,field,start_date,end_date,add_ticker = True):
     '''
     获取股票因子数据。
-    获取万得行业指数数据。
     仅获得交易日数据。
     
     Parameters
@@ -234,11 +233,12 @@ def get_stock_factors(ticker,field,start_date,end_date,add_ticker = True):
     end_date
         结束日期
     add_ticker
-        是否添加代码作为左后一列
+        是否添加代码作为最后一列
     Returns
     --------
     DataFrame
-        columns:wind_id,field_1,field_2,....,field_n,industry_wind_id
+        index:DatetimeIndex
+        columns:field_1,field_2,....,field_n,ticker
     
     Notes
     ------
@@ -267,13 +267,57 @@ def get_stock_factors(ticker,field,start_date,end_date,add_ticker = True):
         df['ticker'] = ticker
     return df
 
-def get_stock_factors_with_industry(ticker,field,start_date,end_date):
+def get_stock_factors_on_year(ticker,field,trade_date,year,add_ticker = True,
+                              add_year = True):
+    '''
+    根据年份获取领先预测数据。
+    
+    Parameters
+    ------------
+    ticker
+        '600340'
+    field
+        ['west_mediansales']
+    trade_date
+        '20170908',预测提出时间
+    year
+        '2018',预测年份
+    add_ticker
+        结果是否添加代码
+    Retruns
+    --------
+    DataFrame
+        index: datetime
+        columns: field1,field2,...,ticker,year
+    '''
+    trade_date = datetime_format_convertor(trade_date)
+    ticker_wind = wind_symbol_convert(ticker)
+    field_str = ','.join(field)
+    data = w.wsd(ticker_wind,field_str,trade_date,trade_date,"unit=1;year=%s;westPeriod=30"%year)
+    time_series = pd.Series(data.Times)
+    time_series = time_series.apply(lambda x:x.replace(microsecond = 0))
+    df = pd.DataFrame(data.Data,index = field,
+                      columns = time_series).T   
+    if add_ticker:
+        df['ticker'] = ticker
+    if add_year:
+        df['year'] = year
+    return df
+
+def get_stock_factors_with_industry(ticker,field,start_date,end_date,
+                                    add_ticker = True,add_industry_id = True):
     '''
     获取股票因子数据,以及对应的行业因子数据。目前支持二级行业。
+    
+    Returns
+    --------
+    DataFrame
+        columns
+            field_1,field_2,...,field_n,ticker,industry_field_1,...,industry_field_n,industry_wind_id
     '''
     stock_basics = get_basics(ticker)
     industry_wind_id = stock_basics['indexcode_wind'][0]
-    stock_factors = get_stock_factors(ticker,field,start_date,end_date)
+    stock_factors = get_stock_factors(ticker,field,start_date,end_date,add_ticker)
     industry_factors = get_industry_factors(industry_wind_id,field,start_date,
                                             end_date)
     industry_field = []
@@ -314,7 +358,4 @@ def get_dividend(ticker,trade_date):
     return df
 
 if __name__ == '__main__':
-    data = get_stock_factor_with_industry('600340',['pe_ttm','ps_ttm'],'20150304','20150304')
-#==============================================================================
-#     data = get_stock_factors('600340',['pe_ttm','ps_ttm'],'20170101','20170304')
-#==============================================================================
+    data = get_stock_factors_on_year('600340',['west_mediansales'],'20170907','2018')

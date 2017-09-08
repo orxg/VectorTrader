@@ -21,6 +21,7 @@ from .model.account import Account
 from .model.analyser import Analyser
 from .model.calendar import Calendar
 from .mod import ModHandler
+from .utils.parse_config import Config
 from .utils.create_base_scope import create_base_scope
 from .utils.persist_provider import DiskPersistProvider
 from .utils.persist_helper import PersistHelper
@@ -41,22 +42,22 @@ def all_system_go(config,strategy_path,mode = 'b',persist_path = None):
         persist_path
             在模拟状态下必须给出持久化路径
     '''
+    config = Config(config)
     env = Environment(config)
-    
     if mode == 'b':
         MOD_LIST = ['sys_simulation']
-        start_date = config['base']['start_date']
-        end_date = config['base']['end_date']
-        capital = config['base']['capital']
-        universe = config['base']['universe']
-        frequency = config['base']['frequency']
+        start_date = config.start_date
+        end_date = config.end_date
+        capital = config.capital
+        universe = config.universe
+        frequency = config.frequency
     elif mode == 'p':
         MOD_LIST = ['sys_email_sender','sys_paper_trading']    
         start_date = datetime.datetime.today().strftime('%Y%m%d')
         end_date = start_date
-        capital = config['base']['capital']
-        universe = config['base']['universe']
-        frequency = config['base']['frequency']        
+        capital = config.capital
+        universe = config.universe
+        frequency = config.frequency       
     
     # 初始化环境
     ## 环境基本参数
