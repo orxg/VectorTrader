@@ -27,7 +27,8 @@ from .utils.persist_provider import DiskPersistProvider
 from .utils.persist_helper import PersistHelper
 from .api.helper import get_apis
 
-def all_system_go(config,strategy_path,mode = 'b',persist_path = None):
+def all_system_go(config,strategy_name,strategy_path,mode = 'b',persist_path = None,
+                  report_path = None):
     '''
     主程序。启动回测/模拟/实盘。
     
@@ -35,12 +36,16 @@ def all_system_go(config,strategy_path,mode = 'b',persist_path = None):
     ----------
         config
             用户策略配置
+        strategy_name
+            策略名称
         strategy_path
             策略路径
         mode
             模式 'b','p','r'
         persist_path
             在模拟状态下必须给出持久化路径
+        report_path
+            回测结果保存地址
     '''
     config = Config(config)
     env = Environment(config)
@@ -125,7 +130,7 @@ def all_system_go(config,strategy_path,mode = 'b',persist_path = None):
     Engine(env).run()
 
     # report
-    env.analyser.stats()
+    env.analyser.stats(strategy_name,report_path)
     env.analyser.show_stats()
     # 关闭mod
     mod_handler.tear_down()

@@ -12,12 +12,12 @@ config = {'base':
      'end_date':'20170501',
      'frequency':'1d',
      'capital':100000,
-     'universe':['sz50']}}
+     'universe':['600340']}}
 
 from VectorTrader import run_file
 
 strategy_path = './test/test_buy_and_hold.py'
-run_file(config,strategy_path,'b')
+run_file(config,'buy_and_hold',strategy_path,'b')
 
 
 

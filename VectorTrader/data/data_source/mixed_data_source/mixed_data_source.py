@@ -107,11 +107,11 @@ class MixedDataSource(AbstractDataSource):
         '''
         return guosen_utils.get_list_delist_date(ticker)
     
-    def get_stock_factors(self,ticker,field,start_date,end_date):
+    def get_stock_factors(self,ticker,field,start_date,end_date,other):
         '''
         获取股票因子数据。
         '''
-        return wind_utils.get_stock_factors(ticker,field,start_date,end_date)
+        return wind_utils.get_stock_factors(ticker,field,start_date,end_date,other)
     
     def get_stock_factors_on_year(ticker,field,trade_date,year):
         '''

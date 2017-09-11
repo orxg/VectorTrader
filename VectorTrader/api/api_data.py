@@ -21,7 +21,7 @@ def get_stocks_basics(ticker_list):
 
 
 
-def get_stock_factors(ticker, field, start_date, end_date):
+def get_stock_factors(ticker, field, start_date, end_date,other):
     '''
     获取股票因子数据。
     仅获得交易日数据。
@@ -36,8 +36,8 @@ def get_stock_factors(ticker, field, start_date, end_date):
         开始日期，交易日日期, 20160104，若非交易日无法取到数据
     end_date
         结束日期
-    add_ticker
-        是否添加代码作为最后一列
+    other
+        其他信息
     Returns
     --------
     DataFrame

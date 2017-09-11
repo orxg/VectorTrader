@@ -23,6 +23,20 @@ class Position():
         self.position_available = state['position_available']
         self.position_market_value = state['position_market_value']
         
+    def get_holding_universe(self):
+        universe = []
+        for key,value in self.position.items():
+            if value != 0:
+                universe.append(key)
+        return universe
+    
+    def get_holding_available_universe(self):
+        universe = []
+        for key,value in self.position_available.items():
+            if value != 0:
+                universe.append(key)
+        return universe        
+        
     def get_position(self,ticker):
         try:
             return self.position[ticker]

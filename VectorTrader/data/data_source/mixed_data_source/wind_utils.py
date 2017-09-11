@@ -217,7 +217,8 @@ def get_industry_factors(industry_wind_id,field,start_date,end_date,
         df['industry_wind_id'] = industry_wind_id
     return df
 
-def get_stock_factors(ticker,field,start_date,end_date,add_ticker = True):
+def get_stock_factors(ticker,field,start_date,end_date,other = None,
+                      add_ticker = True):
     '''
     获取股票因子数据。
     仅获得交易日数据。
@@ -232,6 +233,8 @@ def get_stock_factors(ticker,field,start_date,end_date,add_ticker = True):
         开始日期，交易日日期, 20160104，若非交易日无法取到数据
     end_date
         结束日期
+    other
+        其他信息
     add_ticker
         是否添加代码作为最后一列
     Returns
@@ -256,9 +259,11 @@ def get_stock_factors(ticker,field,start_date,end_date,add_ticker = True):
     '''
     field_str = ','.join(field)
     ticker_wind = wind_symbol_convert(ticker)
+    if other is None:
+        other = ''
     data = w.wsd(ticker_wind, field_str, 
                  datetime_format_convertor(start_date),
-                 datetime_format_convertor(end_date), "")
+                 datetime_format_convertor(end_date), other)
     time_series = pd.Series(data.Times)
     time_series = time_series.apply(lambda x:x.replace(microsecond = 0))
     df = pd.DataFrame(data.Data,index = field,
@@ -358,4 +363,7 @@ def get_dividend(ticker,trade_date):
     return df
 
 if __name__ == '__main__':
-    data = get_stock_factors_on_year('600340',['west_mediansales'],'20170907','2018')
+#==============================================================================
+#     data = get_stock_factors_on_year('600340',['west_mediansales'],'20170907','2018')
+#==============================================================================
+    data = get_stock_factors('600340',['RSI'],'20150101','20160101','RSI_N=6')

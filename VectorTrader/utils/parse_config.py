@@ -31,20 +31,18 @@ class Config(object):
     @property
     def frequency(self):
         return self.config['base']['frequency']
-    
-    @property
-    def universe(self):
-        return self.parse_universe()
         
     def parse_universe(self):
         universe = self.config['base']['universe']
-        if len(universe) >= 2:
-            return universe
-        elif len(universe) <= 0:
+        if len(universe) < 1:
             return []
         else:
             symbol = universe[0]
-            return self.data_source.get_symbols(symbol)
+            if symbol in ['A','hs300','A-st','sz50']:
+                self.universe = self.data_source.get_symbols(symbol)
+            else:
+                self.universe = universe
+       
     
         
 
