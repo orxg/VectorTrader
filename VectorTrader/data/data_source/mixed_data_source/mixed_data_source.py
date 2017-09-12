@@ -113,7 +113,7 @@ class MixedDataSource(AbstractDataSource):
         '''
         return wind_utils.get_stock_factors(ticker,field,start_date,end_date,other)
     
-    def get_stock_factors_on_year(ticker,field,trade_date,year):
+    def get_stock_factors_on_year(self,ticker,field,trade_date,year):
         '''
         按年获取股票因子数据。比如年度一致预测数据。
         '''
@@ -126,12 +126,19 @@ class MixedDataSource(AbstractDataSource):
         return wind_utils.get_industry_factors(industry_wind_id,field,
                                                start_date,end_date)
         
-    def get_stock_factors_with_industry(ticker,field,start_date,end_date):
+    def get_stock_factors_with_industry(self,ticker,field,start_date,end_date):
         '''
         获取股票因子数据附带对应行业因子数据。
         '''
         return wind_utils.get_stock_factors_with_industry(ticker,field,
                                                           start_date,end_date)
+        
+    def get_stocks_factors(self,universe,factors,trade_date):
+        '''
+        获取多个股票在某一交易日多个因子数据。
+        '''
+        return wind_utils.get_stocks_factors(universe,factors,trade_date)
+    
         
         
     

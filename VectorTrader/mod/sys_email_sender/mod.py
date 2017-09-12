@@ -22,9 +22,10 @@ class EmailSenderMod(AbstractMod):
     
     def start_up(self,env):
         self.env = env
-        event_bus = env.envent_bus
+        event_bus = env.event_bus
         event_bus.add_listener(EVENT.POST_BEFORE_TRADING,self._send_email_post_before_trading)
-    
+        event_bus.add_listener(EVENT.POST_AFTER_TRADING,self._send_email_post_after_trading)
+        
     def tear_down(self):
         pass
     
@@ -39,6 +40,16 @@ class EmailSenderMod(AbstractMod):
             send_email(self.from_addr,self.privilege_password,self.to_addr,
                        self.smtp_server,content)
         
+    def _send_email_post_after_trading(self,event):
+        '''
+        在after_trading运行后发送指定信息的eamil到指定邮箱。
+        '''
+        content = self.env.context.signal_post_after_trading
+        if content is None:
+            return 
+        else:
+            send_email(self.from_addr,self.privilege_password,self.to_addr,
+                       self.smtp_server,content)          
     
 
 

@@ -59,7 +59,7 @@ def get_stock_factors(ticker, field, start_date, end_date,other):
             市现率TTM(经营现金流)                    
     '''
     return mixed_data_source.get_stock_factors(ticker,field,
-                                               start_date, end_date)
+                                               start_date, end_date,other)
 
 def get_stock_factors_on_year(ticker,field,trade_date,year):
     '''
@@ -134,3 +134,24 @@ def get_stock_factors_with_industry(ticker,field,start_date,end_date):
     '''
     return mixed_data_source.get_stock_factors_with_industry(ticker,field,
                                                              start_date,end_date)
+    
+def get_stocks_factors(universe,factors,trade_date):
+    '''
+    获取多只股票的多个因子,仅支持单一交易日。
+    
+    Parameters
+    -----------
+    universe
+        ['600340','000001']
+    factors
+        ['ev','pe_ttm']
+    trade_date
+        '20150103'
+
+    Returns
+    --------
+    DataFrame
+        index [ticker,...]
+        columns factor1,factor2,...
+    '''
+    return mixed_data_source.get_stocks_factors(universe,factors,trade_date)    

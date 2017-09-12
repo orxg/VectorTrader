@@ -28,7 +28,8 @@ class Context():
     '''
     def __init__(self):
         self.signal_post_before_trading = None # 盘前信息
-    
+        self.signal_post_after_trading = None # 盘后信息
+        
     def get_state(self):
         state_data = {}
         for key,value in six.iteritems(self.__dict__):
@@ -92,7 +93,28 @@ class Context():
             history[ticker] = env.data_proxy.get_bars(ticker,n,previous_date)
         return history
 
-            
+    # ------------------- 3.0 计划支持 -------------------------------
+    @property
+    def active_order(self):
+        '''
+        当日待成交订单.
+        '''
+        pass
+    
+    @property
+    def trade_order(self):
+        '''
+        当日已成交订单.
+        '''
+        pass
+    
+    @property
+    def killed_order(self):
+        '''
+        当日已撤订单.
+        '''
+        pass
+
     
     
     

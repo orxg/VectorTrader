@@ -47,8 +47,8 @@ class Environment():
     def set_data_proxy(self,data_proxy):
         self.data_proxy = data_proxy
     
-    def set_bar_map(self,bar_map):
-        self.bar_map = bar_map
+    def set_context(self,context):
+        self.context = context
         
     def set_account(self,account):
         self.account = account

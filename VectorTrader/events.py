@@ -51,7 +51,7 @@ class EVENT(Enum):
     
     # Bar
     PRE_BAR = 'pre_bar'
-    BAR = 'BAR'
+    BAR = 'bar'
     POST_BAR = 'post_bar'
     
     # 交易后
@@ -73,5 +73,26 @@ class EVENT(Enum):
     # 订单取消
     CANCEL_ORDER = 'cancel_order'
     
+    # ----------------- 新事件,目前不支持,未来对已有事件进行升级,计划在3.0中支持 ----------------
+    # ----------------- 升级后可以支持更加细腻的策略编写,包括对集合竞价和盘中下单撤单做出决策 ----------------
+    
+    ## 1. 订单部分
+    ## 创建新订单
+    CREATE_NEW_ORDER = 'create_new_order'
+    ## 创建订单成功
+    CREATE_NEW_ORDER_PASS = 'create_new_order_pass'    
+    ## 撤单
+    KILL_ORDER = 'kill_order'
+    ## 撤单成功
+    KILL_ORDER_PASS = 'kill_order_pass'
+    ## 订单撮合成功
+    TRADE = 'trade'    
+    ## 拒绝订单
+    REJECT_ORDER = 'reject_order'
+    
+    ## 2. 集合竞价 
+    AUCTION = 'auction'
+    
+
 if __name__ == '__main__':
     event = Event(EVENT.AFTER_TRADING,calendar_dt = '20150101')       

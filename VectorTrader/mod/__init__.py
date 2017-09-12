@@ -10,8 +10,6 @@ Created on Sun Aug 20 23:12:51 2017
 
 from importlib import import_module
 
-
-
 class ModHandler():
     def __init__(self,MOD_LIST):
         self._mod_list = MOD_LIST

@@ -32,27 +32,25 @@ class PaperTradingEventSource():
     def _clock_worker(self):
         '''
         每日在指定时间生成事件。
-        '''        
+        '''     
         while True:
-            time.sleep(1)
-            
+            time.sleep(1)            
             if is_holiday_today():
                 time.sleep(3600)
                 continue
-            
             now = datetime.datetime.now()
             now_time = now.strftime('%H:%M:%S')
             now_date = now.replace(hour=0,minute=0,second=0,microsecond=0)
             if now_time >= '08:40:00' and datetime.date.today() > self.before_trading_date:
                 self._event_queue.put((now_date,now,EVENT.BEFORE_TRADING))
                 self.before_trading_date = datetime.date.today()
-            elif now_time >= '15:10:00' and datetime.date.today() > self.bar_date:
+            elif now_time >= '15:00:00' and datetime.date.today() > self.bar_date:
                 self._event_queue.put((now_date,now,EVENT.BAR))
                 self.bar_date = datetime.date.today()                
-            elif now_time >= '15:20:00' and datetime.date.today() > self.after_trading_date:
+            elif now_time >= '15:10:00' and datetime.date.today() > self.after_trading_date:
                 self._event_queue.put((now_date,now,EVENT.AFTER_TRADING))
                 self.after_trading_date = datetime.date.today()
-            elif now_time >= '15:30:00' and datetime.date.today() > self.settlement_date:
+            elif now_time >= '15:15:00' and datetime.date.today() > self.settlement_date:
                 self._event_queue.put((now_date,now,EVENT.SETTLEMENT))
                 self.settlement_date = datetime.date.today()
 

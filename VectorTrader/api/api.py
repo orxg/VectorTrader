@@ -35,3 +35,17 @@ def order(ticker,amount,direction,order_price = None):
         
         env.event_bus.publish_event(order_event)
         return order_obj
+    
+
+# ------------------------ 3.0 支持 ------------------------------
+def order_to():
+    '''
+    下单到指定数量。
+    '''
+    pass
+
+def order_pct_to():
+    '''
+    下单到指定比例.
+    '''
+    pass

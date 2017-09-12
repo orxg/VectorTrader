@@ -209,7 +209,6 @@ def get_industry_factors(industry_wind_id,field,start_date,end_date,
           datetime_format_convertor(start_date),
           datetime_format_convertor(end_date), "")
     time_series = pd.Series(data.Times)
-    time_series = time_series.apply(lambda x:x.replace(microsecond = 0))
     df = pd.DataFrame(data.Data,index = field,
                       columns = time_series).T
                       
@@ -265,7 +264,6 @@ def get_stock_factors(ticker,field,start_date,end_date,other = None,
                  datetime_format_convertor(start_date),
                  datetime_format_convertor(end_date), other)
     time_series = pd.Series(data.Times)
-    time_series = time_series.apply(lambda x:x.replace(microsecond = 0))
     df = pd.DataFrame(data.Data,index = field,
                       columns = time_series).T
     if add_ticker:
@@ -300,7 +298,6 @@ def get_stock_factors_on_year(ticker,field,trade_date,year,add_ticker = True,
     field_str = ','.join(field)
     data = w.wsd(ticker_wind,field_str,trade_date,trade_date,"unit=1;year=%s;westPeriod=30"%year)
     time_series = pd.Series(data.Times)
-    time_series = time_series.apply(lambda x:x.replace(microsecond = 0))
     df = pd.DataFrame(data.Data,index = field,
                       columns = time_series).T   
     if add_ticker:
@@ -332,6 +329,32 @@ def get_stock_factors_with_industry(ticker,field,start_date,end_date,
     columns = dict(columns)
     industry_factors.rename(columns = columns,inplace = True)
     df = stock_factors.join(industry_factors)
+    return df
+
+def get_stocks_factors(universe,factors,trade_date):
+    '''
+    获取多只股票的多个因子,仅支持单一交易日。
+    
+    Parameters
+    -----------
+    universe
+        ['600340','000001']
+    factors
+        ['ev','pe_ttm']
+    trade_date
+        '20150103'
+
+    Returns
+    --------
+    DataFrame
+        index [ticker,...]
+        columns factor1,factor2,...
+    '''
+    wind_universe = map(wind_symbol_convert,universe)
+    wind_universe = ','.join(wind_universe)
+    wind_factors = ','.join(factors)
+    data = w.wss(wind_universe, wind_factors,"unit=1;tradeDate=%s"%trade_date)
+    df = pd.DataFrame(data.Data,index = factors,columns = universe).T
     return df
 
 # ------------------- Abandon ---------------------------------
@@ -366,4 +389,7 @@ if __name__ == '__main__':
 #==============================================================================
 #     data = get_stock_factors_on_year('600340',['west_mediansales'],'20170907','2018')
 #==============================================================================
-    data = get_stock_factors('600340',['RSI'],'20150101','20160101','RSI_N=6')
+#==============================================================================
+#     data = get_stock_factors('600340',['RSI'],'20150101','20160101','RSI_N=6')
+#==============================================================================
+    data = get_stocks_factors(['600340','000001'],['ev','pe_ttm'],'20170912')

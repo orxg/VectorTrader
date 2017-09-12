@@ -27,7 +27,8 @@ from .utils.persist_provider import DiskPersistProvider
 from .utils.persist_helper import PersistHelper
 from .api.helper import get_apis
 
-def all_system_go(config,strategy_name,strategy_path,mode = 'b',persist_path = None,
+def all_system_go(config,strategy_name,strategy_path,
+                  mode = 'b',persist_path = None,
                   report_path = None):
     '''
     主程序。启动回测/模拟/实盘。
@@ -100,11 +101,12 @@ def all_system_go(config,strategy_name,strategy_path,mode = 'b',persist_path = N
     dynamic_universe = DynamicUniverse()
     env.set_dynamic_universe(dynamic_universe) # 此处dynamic_universe要在account之前以保证监听函数靠前
     env.set_account(Account(env,capital)) # 此处account要在analyser之前
-    env.set_analyser(Analyser(env))
+    env.set_analyser(Analyser(env,strategy_name,report_path))
     print 'Initilizing running environment successfully'.upper()
     
     ## 初始化策略
     user_context = Context()
+    env.set_context(user_context)
     strategy = Strategy(env,scope,user_context)
     assert strategy is not None
     strategy.initilize()

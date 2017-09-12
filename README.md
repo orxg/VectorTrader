@@ -7,6 +7,7 @@
 1. 向site-packages中添加VectorTrader路径文件pth.
 2. 安装requirments中的需求
 3. 在data_source中的mixed_data_source中根据Readme进行调整。
+4. 向系统环境变量中添加mod地址
 
 # 待优化
 1. 相关对象的持久化服务
@@ -21,6 +22,10 @@
 4. 仓位最优化工具
 
 # update log
+## 2017-09-12
+1. 修复了一些bug
+2. 增加了wind函数get_stocks_factors
+
 ## 2017-09-11
 1. 增加回测报告统计指标，在策略仓库中添加了回测结果分析函数
 2. 增加了策略编写手册辅助策略编写

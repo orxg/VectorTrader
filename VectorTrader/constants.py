@@ -9,6 +9,7 @@ Created on Wed Sep 06 09:02:46 2017
 
 from enum import Enum
 
+# ------------------ 暂不支持，计划在3.0中支持 -------------------
 class MODE(Enum):
     BACKTEST = 'BACKTEST'
     PAPER_TRADING = 'PAPER_TRADING'
@@ -18,8 +19,10 @@ class ORDER_TYPE(Enum):
     MARKET = 'MARKET'
     
 class ORDER_STATUS(Enum):
-    NEW = 'NEW'
-    FILL = 'FILL'
+    ACTIVE = 'ACTIVE' # 等待成交
+    ABANDON = 'ABANDON' # 丢弃
+    FILL = 'FILL' # 已成
+    REJECT = 'REJECT' # 拒绝
 
 class SIDE(Enum):
     BUY = 'BUY'

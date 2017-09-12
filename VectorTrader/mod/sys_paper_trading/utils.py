@@ -7,9 +7,9 @@ Created on Wed Aug 23 14:08:21 2017
 
 # calendar_handler.py
 
-import datetime as dt
 
 def is_holiday_today():
+    import datetime as dt
     today = dt.datetime.today()
     weekday =  dt.datetime.isoweekday(today)
     if weekday in range(1,6):

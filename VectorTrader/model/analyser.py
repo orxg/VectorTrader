@@ -18,8 +18,10 @@ from ..utils.stats import calc_bar_return,calc_return_pnl,\
                         calc_sharp_ratio
 class Analyser():
 
-    def __init__(self,env):
+    def __init__(self,env,name = None,path = None):
         self.env = env
+        self.name = name
+        self.path = path
         
         self.portfolio_net_value = []
         self.position_record = []        
@@ -28,8 +30,10 @@ class Analyser():
             self.env.event_bus.add_listener(EVENT.POST_SETTLEMENT,self._show_post_settlement)
         
     def get_state(self):
-        return pickle.dumps({'portfolio_net_value':self.portfolio_net_value,
-                 'position_record':self.position_record})
+        return pickle.dumps({
+                'portfolio_net_value':self.portfolio_net_value,
+                 'position_record':self.position_record
+                 })
         
     def set_state(self,state):
         state = pickle.loads(state)
@@ -44,30 +48,19 @@ class Analyser():
         
     def _show_post_settlement(self,event):
         self.stats()
-        print '******' * 10
-        for name,value in self.report.items():
-            print name
-            print value
-            print '******' * 10
+        self.show_stats()
         
-    def stats(self,name = None,path = None):
+    def stats(self):
         '''
-        回测结束后调用该函数，用于统计回测结果。
-        
-        parameters
-        ------------
-            name
-                结果名称
-            path
-                回测结果保存路径
+        统计当前时刻的各项指标，生成报告。
         '''
         # 存储设定
-        if name is None:
-            name = 'strategy_' + datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
-        if path is None:
-            path = 'G:\\Work_ldh\\Backtest\\StrategyGo\\out\\'
+        if self.name is None:
+            self.name = 'strategy_' + datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+        if self.path is None:
+            self.path = 'G:\\Work_ldh\\Backtest\\StrategyGo\\out\\'
         
-        out_path = path + name + '.pkl'
+        out_path = self.path + self.name + '.pkl'
         
         # 资金曲线
         self.portfolio_value = pd.DataFrame(self.portfolio_net_value,
@@ -114,7 +107,7 @@ class Analyser():
         
         report['Summary']['total_return'] = self.total_return
         report['Summary']['annul_return'] = self.annul_return
-        report['Summary']['Sharp_ratio'] = self.sharp_ratio
+        report['Summary']['sharp_ratio'] = self.sharp_ratio
         report['Summary']['max_drawdown'] = max_dd
         report['Summary']['max_drawdown_duration'] = max_ddd
         report['Summary']['max_drawdown_start_date'] = max_dd_start_date
@@ -130,7 +123,7 @@ class Analyser():
         
     def show_stats(self):
         '''
-        展示回测统计结果。
+        展示当前统计结果。
         '''
         sns.set_style('dark')
         report_summary_df = pd.Series(self.report['Summary'])

@@ -8,7 +8,7 @@ Created on Tue Aug 29 16:17:24 2017
 # paper_trading_broker.py
 
 from VectorTrader.events import EVENT,Event
-from VectorTrader.module.orders import FillOrder
+from VectorTrader.model.orders import FillOrder
 
 class PaperTradingBroker():
     def __init__(self,env):

@@ -14,7 +14,8 @@ class Position():
         self.position_market_value = {}
         
     def get_state(self):
-        state_data = {'position':self.position,'position_available':self.position_available,
+        state_data = {'position':self.position,
+                      'position_available':self.position_available,
                       'position_market_value':self.position_market_value}
         return state_data
     
