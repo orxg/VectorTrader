@@ -58,7 +58,7 @@ class SimulationBroker():
                     return
                     
             # 根据当前bar信息进行撮合
-            volume = self.env.data_proxy.get_bar(ticker,calendar_dt)['volume']
+            volume = self.env.bar_map.get_latest_bar_value(ticker,'volume')
             # 默认有10倍成交量才能成交
             if volume > 10 * amount:
                 match_amount = amount

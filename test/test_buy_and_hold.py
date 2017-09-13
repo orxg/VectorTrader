@@ -13,8 +13,11 @@ def initilize(context):
     
 def before_trading(context):
     context.signal_post_before_trading = 'This is a test'
-    print 'TEST'
-def handle_bar(context):
+    
+def handle_bar(context,bar_map):
+    print context.current_datetime
+    for ticker in context.universe:
+        print bar_map.get_latest_bar(ticker)
     if not context.fired:
         for ticker in context.universe:
             order(ticker,1000,1)

@@ -82,17 +82,10 @@ class Context():
     def total_asset_value(self):
         return Environment.get_instance().account.total_asset_value
     
-    def get_history(self,n):
-        '''
-    		返回过去N日的前复权数据。
-    		'''
-        env = Environment.get_instance()
-        previous_date = self.previous_date
-        history = {}
-        for ticker in env.universe:
-            history[ticker] = env.data_proxy.get_bars(ticker,n,previous_date)
-        return history
-
+    @property
+    def current_datetime(self):
+        return Environment.get_instance().trading_dt
+    
     # ------------------- 3.0 计划支持 -------------------------------
     @property
     def active_order(self):

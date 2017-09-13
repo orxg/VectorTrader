@@ -9,6 +9,7 @@ Created on Sun Aug 20 14:12:48 2017
 import datetime
 from ..environment import Environment
 from ..events import EVENT
+from ..utils.convertor import df_2_bar_generator
 
 class DataProxy():
     '''
@@ -75,8 +76,8 @@ class DataProxy():
         self._calendar_days = self.get_calendar_days(start_date,end_date)
         
         for ticker in universe:
-            self._history_data[ticker] = self.get_history(ticker,start_date,
-                              end_date,frequency,'0').fillna(method = 'pad')
+            self._history_data[ticker] = df_2_bar_generator(self.get_history(
+                    ticker,start_date,end_date,frequency,'0').fillna(method = 'pad'))
             self._pregened_history_data[ticker] = self.get_history(ticker,
                                        adjust_start_date,end_date,frequency,'-1').dropna()
             self._dividend_data[ticker] = self.get_dividend(ticker,
@@ -99,23 +100,22 @@ class DataProxy():
     
     # 系统内部数据接口
     ## XX : 大量使用loc
-    def get_bar(self,ticker,dt):
-        if self.mode == 'b':
-            return self._history_data[ticker].loc[dt]
-        elif self.mode == 'p':
-            frequency = Environment.get_instance().frequency
-            if isinstance(dt,datetime.datetime):
-                dt_ = dt.strftime('%Y%m%d')
-            return self.get_history(ticker,dt_,dt_,frequency,'0').loc[dt]
-    
-    def get_bars(self,ticker,n,previous_date):
+    def get_bar(self,ticker):
         '''
-        context数据接口。
+        返回的bar的格式为(index,series)
+        
+        Notes
+        ------
+        index 
+            pd.Timestamp
+        series 
+            (open_price,high_price,low_price,close_price,volume,amount)
         '''
         if self.mode == 'b':
-            return self._pregened_history_data[ticker][:previous_date].iloc[-n:]
-        elif self.mode == 'p':
-            return None
+            try:
+                return next(self._history_data[ticker])
+            except StopIteration:
+                return None
     
     def get_pre_before_trading_dividend(self,ticker,dt):
         if self.mode == 'b':

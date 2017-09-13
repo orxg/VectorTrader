@@ -62,8 +62,8 @@ class Environment():
     def set_calendar(self,calendar):
         self.calendar = calendar
     
-    def set_history_bars(self,history_bars):
-        self.history_bars = history_bars
+    def set_bar_map(self,bar_map):
+        self.bar_map = bar_map
         
     def set_dynamic_universe(self,dynamic_universe):
         self.dynamic_universe = dynamic_universe

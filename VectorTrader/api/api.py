@@ -20,21 +20,18 @@ def order(ticker,amount,direction,order_price = None):
     下单函数。在handle_bar中调用。
     '''
     env = Environment.get_instance()
-    frequency = env.frequency
-    if frequency[-1] == 'd':
-        calendar_dt = env.calendar_dt
-        if order_price is None:       
-            open_price =  env.data_proxy.get_bar(ticker,calendar_dt)['open_price']
-            order_price = open_price
+    if order_price is None:       
+        open_price =  env.bar_map.get_latest_bar_value(ticker,'open_price')
+        order_price = open_price
             
-        order_obj = Order(env.calendar_dt,env.trading_dt,ticker,
-                          amount,direction,order_price)
-        order_event = Event(EVENT.ORDER,calendar_dt = env.calendar_dt,
-                                    trading_dt = env.trading_dt,
-                                    order = order_obj)
-        
-        env.event_bus.publish_event(order_event)
-        return order_obj
+    order_obj = Order(env.calendar_dt,env.trading_dt,ticker,
+                      amount,direction,order_price)
+    order_event = Event(EVENT.ORDER,calendar_dt = env.calendar_dt,
+                                trading_dt = env.trading_dt,
+                                order = order_obj)
+    
+    env.event_bus.publish_event(order_event)
+    return order_obj
     
 
 # ------------------------ 3.0 支持 ------------------------------

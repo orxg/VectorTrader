@@ -7,6 +7,43 @@ Created on Mon Aug 21 10:56:35 2017
 
 # bar.py
 
+from collections import defaultdict
+from ..events import EVENT
+
+class BarMap():
+    def __init__(self,env):
+        '''
+        为Strategy,Account,Broker提供bar数据。
+        是系统内部数据的传递者,其数据来自于data_proxy.
+        '''
+        self._data = defaultdict(list)
+        self.env = env        
+        self.env.event_bus.add_listener(EVENT.PRE_BAR,self._update_pre_bar)
+        
+    def __str__(self):
+        return str(self._data)
+    
+    def _update_pre_bar(self,event):
+        data_proxy = self.env.data_proxy
+        for ticker in self.env.universe:
+            self._data[ticker].append(data_proxy.get_bar(ticker))
+        
+    def __getitem__(self,ticker):
+        return self._data[ticker]
+    
+    def get_latest_bar(self,ticker):
+        try:
+            return self._data[ticker][-1]
+        except:
+            return None
+        
+    def get_latest_bar_value(self,ticker,val_type = 'close_price'):
+        '''
+        获取最近的bar的某个属性值。
+        '''
+        return self._data[ticker][-1][1][val_type]
+    
+# ------------------------------ Abandon -------------------------------
 class Bar():
     def __init__(self,dt,ticker,frequency):
         '''
@@ -74,35 +111,7 @@ class Bar():
     @property
     def limit_up(self):
         return self._limit_up
-       
-class BarMap():
-    def __init__(self,data_proxy,frequency):
-        '''
-        cross-section bars.
-        '''
-        self.dt = None
-        self.data_proxy = data_proxy
-        self.frequency = frequency
-        self._cache = {}
-        
-    def update_dt(self,dt):
-        self.dt = dt
-        self._cache.clear()
-        
-    def __getitem__(self,ticker):
-        try:
-            return self._cache[ticker]
-        except:
-            bar = self.data_proxy.get_bar(ticker)
-            self._cache[ticker] = bar
-            return bar  
-        
-
-            
-        
-        
     
-## --------------------- Abandon --------------------------------        
 class Bars():
     def __init__(self,ticker,frequency):
         '''

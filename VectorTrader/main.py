@@ -20,6 +20,7 @@ from .data.data_source.mixed_data_source.mixed_data_source import MixedDataSourc
 from .model.account import Account
 from .model.analyser import Analyser
 from .model.calendar import Calendar
+from .model.bar import BarMap
 from .mod import ModHandler
 from .utils.parse_config import Config
 from .utils.create_base_scope import create_base_scope
@@ -81,33 +82,43 @@ def all_system_go(config,strategy_name,strategy_path,
     scope.update(apis)
     scope = strategy_loader.load(scope)
     print 'Loading strategy scope successfully'.upper()
-    
     ## 初始化数据源,动态股票池
     if not env.data_source:
-        env.set_data_source(MixedDataSource())   
+        env.set_data_source(MixedDataSource())  
+    print '1'
     if not env.calendar:
         env.set_calendar(Calendar(env))
+    print '2'
     if not env.data_proxy:
         env.set_data_proxy(DataProxy(env.data_source,mode = mode))
-
+    print '3'
         
        
     ## 初始化MOD(事件源等)
     mod_handler = ModHandler(MOD_LIST)
+    print '4'
     mod_handler.set_env(env)
+    print '5'
     mod_handler.start_up()
+    print '6'
     
     ## 初始化account,dynamic_universe
     dynamic_universe = DynamicUniverse()
+    print '7'
     env.set_dynamic_universe(dynamic_universe) # 此处dynamic_universe要在account之前以保证监听函数靠前
+    print '8'
     env.set_account(Account(env,capital)) # 此处account要在analyser之前
+    print '9'
     env.set_analyser(Analyser(env,strategy_name,report_path))
     print 'Initilizing running environment successfully'.upper()
     
     ## 初始化策略
     user_context = Context()
+    
     env.set_context(user_context)
-    strategy = Strategy(env,scope,user_context)
+    bar_map = BarMap(env)
+    env.set_bar_map(bar_map)
+    strategy = Strategy(env,scope,user_context,bar_map)
     assert strategy is not None
     strategy.initilize()
     
@@ -132,7 +143,7 @@ def all_system_go(config,strategy_name,strategy_path,
     Engine(env).run()
 
     # report
-    env.analyser.stats(strategy_name,report_path)
+    env.analyser.stats()
     env.analyser.show_stats()
     # 关闭mod
     mod_handler.tear_down()

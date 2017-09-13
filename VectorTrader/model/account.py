@@ -25,10 +25,15 @@ class Account():
         self.order_canceled = []
             
         self.env.event_bus.add_listener(EVENT.FILL_ORDER,self._handle_fill_order)
+        print '81'
         self.env.event_bus.add_listener(EVENT.CANCEL_ORDER,self._handle_cancel_order)
+        print '82'
         self.env.event_bus.add_listener(EVENT.PRE_BEFORE_TRADING,self._refresh_pre_before_trading)
+        print '83'
         self.env.event_bus.add_listener(EVENT.POST_BAR,self._refresh_post_bar) # 确保第一个接收事件
+        print '84'
         self.env.event_bus.add_listener(EVENT.SETTLEMENT,self._refresh_settlement)
+        print '85'
         
     def get_state(self):
         state_data = {'cash':self.cash,
@@ -138,7 +143,7 @@ class Account():
                                                              
     def _refresh_post_bar(self,event):
         for ticker,value in self.position.position.items():
-            close_price = self.env.data_proxy.get_bar(ticker,self.env.calendar_dt)['close_price']
+            close_price = self.env.bar_map.get_latest_bar_value(ticker)
             self.position.set_position_market_value(ticker,value * close_price)
         self.total_asset_value = self.cash + self.position.get_position_value()
         
