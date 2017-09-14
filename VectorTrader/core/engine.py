@@ -39,7 +39,7 @@ class Engine():
         for event in self.env.event_source.events(start_date,
                                            end_date,
                                            frequency):
-            
+
             self.env.calendar_dt = event.calendar_dt
             self.env.trading_dt = event.trading_dt
             

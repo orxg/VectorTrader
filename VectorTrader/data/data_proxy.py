@@ -112,10 +112,7 @@ class DataProxy():
             (open_price,high_price,low_price,close_price,volume,amount)
         '''
         if self.mode == 'b':
-            try:
-                return next(self._history_data[ticker])
-            except StopIteration:
-                return None
+            return next(self._history_data[ticker])
     
     def get_pre_before_trading_dividend(self,ticker,dt):
         if self.mode == 'b':

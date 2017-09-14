@@ -41,10 +41,10 @@ class Analyser():
         self.position_record = state['position_record']
     
     def _record_post_bar(self,event):
-        calendar_dt = self.env.calendar_dt
+        trading_dt = self.env.trading_dt
         account = self.env.account
-        self.portfolio_net_value.append([calendar_dt,account.total_asset_value])
-        self.position_record.append([calendar_dt,account.position.position])
+        self.portfolio_net_value.append([trading_dt,account.total_asset_value])
+        self.position_record.append([trading_dt,account.position.position])
         
     def _show_post_settlement(self,event):
         self.stats()
@@ -104,6 +104,7 @@ class Analyser():
         
         report['PnLs']['bar_return'] = self.bar_return
         report['PnLs']['return_pnl'] = self.return_pnl
+        report['PnLs']['portfolio_value'] = self.portfolio_value
         
         report['Summary']['total_return'] = self.total_return
         report['Summary']['annul_return'] = self.annul_return

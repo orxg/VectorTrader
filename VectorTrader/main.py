@@ -58,6 +58,8 @@ def all_system_go(config,strategy_name,strategy_path,
         capital = config.capital
         universe = config.universe
         frequency = config.frequency
+        position_base = config.position_base
+        cost_base = config.cost_base
     elif mode == 'p':
         MOD_LIST = ['sys_email_sender','sys_paper_trading']    
         start_date = datetime.datetime.today().strftime('%Y%m%d')
@@ -65,7 +67,9 @@ def all_system_go(config,strategy_name,strategy_path,
         capital = config.capital
         universe = config.universe
         frequency = config.frequency       
-    
+        position_base = config.position_base
+        cost_base = config.cost_base
+        
     # 初始化环境
     ## 环境基本参数
     env.start_date = start_date
@@ -85,43 +89,35 @@ def all_system_go(config,strategy_name,strategy_path,
     ## 初始化数据源,动态股票池
     if not env.data_source:
         env.set_data_source(MixedDataSource())  
-    print '1'
     if not env.calendar:
         env.set_calendar(Calendar(env))
-    print '2'
     if not env.data_proxy:
         env.set_data_proxy(DataProxy(env.data_source,mode = mode))
-    print '3'
         
        
     ## 初始化MOD(事件源等)
     mod_handler = ModHandler(MOD_LIST)
-    print '4'
     mod_handler.set_env(env)
-    print '5'
     mod_handler.start_up()
-    print '6'
     
     ## 初始化account,dynamic_universe
     dynamic_universe = DynamicUniverse()
-    print '7'
     env.set_dynamic_universe(dynamic_universe) # 此处dynamic_universe要在account之前以保证监听函数靠前
-    print '8'
-    env.set_account(Account(env,capital)) # 此处account要在analyser之前
-    print '9'
+    account = Account(env,capital)
+    if position_base is not None and cost_base is not None:
+        account.set_position(position_base,cost_base)
+    env.set_account(account) # 此处account要在analyser之前
     env.set_analyser(Analyser(env,strategy_name,report_path))
     print 'Initilizing running environment successfully'.upper()
     
     ## 初始化策略
     user_context = Context()
-    
     env.set_context(user_context)
     bar_map = BarMap(env)
     env.set_bar_map(bar_map)
     strategy = Strategy(env,scope,user_context,bar_map)
     assert strategy is not None
     strategy.initilize()
-    
     print 'Loading strategy successfully'.upper()
     
     ## 进行持久化注册
@@ -131,10 +127,9 @@ def all_system_go(config,strategy_name,strategy_path,
         persist_helper.rigister('user_context',user_context)
         persist_helper.rigister('account',env.account)
         persist_helper.rigister('analyser',env.analyser)
-        
+    
         ### 从硬盘中恢复到最新的状态
         persist_helper.restore()
-        
         print 'Restore successfully'.upper()
         
     # 启动引擎

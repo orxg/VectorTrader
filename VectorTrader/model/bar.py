@@ -7,6 +7,7 @@ Created on Mon Aug 21 10:56:35 2017
 
 # bar.py
 
+import pandas as pd
 from collections import defaultdict
 from ..events import EVENT
 
@@ -17,8 +18,11 @@ class BarMap():
         是系统内部数据的传递者,其数据来自于data_proxy.
         '''
         self._data = defaultdict(list)
+        self._current_data = defaultdict(list)
         self.env = env        
         self.env.event_bus.add_listener(EVENT.PRE_BAR,self._update_pre_bar)
+        self.env.event_bus.add_listener(EVENT.POST_SETTLEMENT,
+                                        self._clear_post_settlement)
         
     def __str__(self):
         return str(self._data)
@@ -26,22 +30,48 @@ class BarMap():
     def _update_pre_bar(self,event):
         data_proxy = self.env.data_proxy
         for ticker in self.env.universe:
-            self._data[ticker].append(data_proxy.get_bar(ticker))
+            bar = data_proxy.get_bar(ticker)
+            self._data[ticker].append(bar)
+            self._current_data[ticker].append(bar)
+            
+    def _clear_post_settlement(self,event):
+        self._current_data.clear()
         
     def __getitem__(self,ticker):
         return self._data[ticker]
     
-    def get_latest_bar(self,ticker):
-        try:
-            return self._data[ticker][-1]
-        except:
-            return None
+    def get_latest_bar(self,ticker):      
+        return self._data[ticker][-1]
         
     def get_latest_bar_value(self,ticker,val_type = 'close_price'):
         '''
         获取最近的bar的某个属性值。
         '''
         return self._data[ticker][-1][1][val_type]
+    
+    def get_current_date_bar(self,ticker):
+        '''
+        获取当日的所有bar.
+        
+        Parameters
+        -----------
+        ticker
+            '600340'
+        Returns
+        ---------
+        DataFrame
+            index
+                 pd.Timestamp
+            columns
+                (open_price,high_price,low_price,close_price,volume,amount)
+        '''
+        data = self._current_data[ticker]
+        df = pd.DataFrame()
+        for each in data:
+            tmp = pd.DataFrame(each[1].to_dict(),index = [each[0]])
+            df = df.append(tmp)
+        return df
+    
     
 # ------------------------------ Abandon -------------------------------
 class Bar():

@@ -1,5 +1,6 @@
 %% 获取分钟线或基于分钟线合成的各种周期K线
-NET.addAssembly([pwd,'FactorsLib2.dll']);
+lib_path = 'G:\Work_ldh\Backtest\VectorTrader\VectorTrader\data\data_source\mixed_data_source\';
+NET.addAssembly([lib_path,'FactorsLib2.dll']);
 scc=cell(FactorsLib2.Factors.getStockcode(1)); %全A非退市股票代码
 onemin=FactorsLib2.OneMinuteLine; % 实例化
 

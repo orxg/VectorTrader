@@ -32,6 +32,20 @@ class Config(object):
     def frequency(self):
         return self.config['base']['frequency']
         
+    @property
+    def position_base(self):
+        if 'position_base' in self.config['base'].keys():
+            return self.config['base']['position_base']
+        else:
+            return None
+        
+    @property
+    def cost_base(self):
+        if 'cost_base' in self.config['base'].keys():
+            return self.config['base']['cost_base']
+        else:
+            return None
+        
     def parse_universe(self):
         universe = self.config['base']['universe']
         if len(universe) < 1:

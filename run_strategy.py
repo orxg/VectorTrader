@@ -17,7 +17,7 @@ config = {'base':
 from VectorTrader import run_file
 
 strategy_path = './test/test_buy_and_hold.py'
-run_file(config,'buy_and_hold',strategy_path,'b',report_path = './out')
+run_file(config,'buy_and_hold',strategy_path,'b')
 
 
 

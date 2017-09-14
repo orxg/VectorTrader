@@ -25,15 +25,10 @@ class Account():
         self.order_canceled = []
             
         self.env.event_bus.add_listener(EVENT.FILL_ORDER,self._handle_fill_order)
-        print '81'
         self.env.event_bus.add_listener(EVENT.CANCEL_ORDER,self._handle_cancel_order)
-        print '82'
         self.env.event_bus.add_listener(EVENT.PRE_BEFORE_TRADING,self._refresh_pre_before_trading)
-        print '83'
         self.env.event_bus.add_listener(EVENT.POST_BAR,self._refresh_post_bar) # 确保第一个接收事件
-        print '84'
         self.env.event_bus.add_listener(EVENT.SETTLEMENT,self._refresh_settlement)
-        print '85'
         
     def get_state(self):
         state_data = {'cash':self.cash,
@@ -51,7 +46,13 @@ class Account():
         self.position.set_state(state['position'])
         self.order_passed = state['order_passed']
         self.order_canceled = state['order_canceled']
-                
+            
+    def set_position(self,position_base,cost_base):
+        '''
+        初始化仓位。
+        '''
+        self.position.set_init_position(position_base,cost_base)
+        
     def _handle_fill_order(self,event):
         '''
         监听Broker返回的FillOrder事件。
@@ -113,7 +114,7 @@ class Account():
                 
                 # 配股逻辑
                 # 原则:有钱就配,能配多少是多少
-                ## XXX : 写的太多
+                ## XXX : 写的太多,此处逻辑正确性未测试
                 if transfer_rights_issue_price == 0:
                     if self.cash >= rights_issue_maximum_cost:
                         self.cash -= rights_issue_maximum_cost
@@ -140,7 +141,7 @@ class Account():
                         rights_issue_stocks = int(self.cash / rights_issue_price)
                         self.cash -= rights_issue_stocks * rights_issue_price
                         self.position.add_position(ticker,rights_issue_stocks)
-                                                             
+        
     def _refresh_post_bar(self,event):
         for ticker,value in self.position.position.items():
             close_price = self.env.bar_map.get_latest_bar_value(ticker)
