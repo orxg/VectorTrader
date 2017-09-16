@@ -143,6 +143,7 @@ def all_system_go(config,strategy_name,strategy_path,
     # 关闭mod
     mod_handler.tear_down()
     
+    return env.analyser.report
         
         
     

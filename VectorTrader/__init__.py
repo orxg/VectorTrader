@@ -35,6 +35,6 @@ def run_file(config,strategy_name,strategy_path,mode = 'b',
     '''
     
     from .main import all_system_go
-    all_system_go(config,strategy_name,strategy_path,mode,persist_path)
+    all_system_go(config,strategy_name,strategy_path,mode,persist_path,report_path)
     
 

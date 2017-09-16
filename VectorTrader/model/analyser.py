@@ -9,8 +9,12 @@ Created on Mon Aug 21 10:52:45 2017
 import pickle
 import datetime
 from collections import OrderedDict
+
+import numpy as np
 import pandas as pd
 import seaborn as sns
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 
 from ..events import EVENT
 from ..utils.stats import calc_bar_return,calc_return_pnl,\
@@ -68,7 +72,10 @@ class Analyser():
                                                        'total_asset_value']).set_index('trading_dt')
         self.bar_return = calc_bar_return(self.portfolio_value['total_asset_value'])
         self.return_pnl = calc_return_pnl(self.portfolio_value['total_asset_value'])
-        
+        self.daily_portfolio_value = self.portfolio_value['total_asset_value']
+        self.daily_portfolio_value = self.daily_portfolio_value[self.daily_portfolio_value.index.time == \
+                                                          datetime.time(15,0)]
+        self.daily_return_pnl = calc_return_pnl(self.daily_portfolio_value)
         # 指标计算
         ## 总收益率
         self.total_return =calc_total_return(self.portfolio_value['total_asset_value'])
@@ -94,8 +101,7 @@ class Analyser():
                                                       'trading_dt',
                                                       'ticker',
                                                       'amount',
-                                                      'reason'])
-        
+                                                      'reason'])        
         # 存储
         report = {}
         report['PnLs'] = {}
@@ -104,7 +110,9 @@ class Analyser():
         
         report['PnLs']['bar_return'] = self.bar_return
         report['PnLs']['return_pnl'] = self.return_pnl
+        report['PnLs']['daily_return_pnl'] = self.daily_return_pnl
         report['PnLs']['portfolio_value'] = self.portfolio_value
+        report['PnLs']['daily_portfolio_value'] = self.daily_portfolio_value
         
         report['Summary']['total_return'] = self.total_return
         report['Summary']['annul_return'] = self.annul_return
@@ -129,10 +137,29 @@ class Analyser():
         sns.set_style('dark')
         report_summary_df = pd.Series(self.report['Summary'])
         print report_summary_df
-        ax = self.return_pnl.plot(figsize = (20,8))
-        y_vals = ax.get_yticks()
+        
+        # 曲线级别控制
+        if True:
+            x_vals = self.return_pnl.index.to_pydatetime()
+            y_vals = self.return_pnl.values
+        ## FIXME
+        else:
+            x_vals = self.daily_return_pnl.index.to_pydatetime()
+            y_vals = self.daily_return_pnl.values
+        
+        N = len(x_vals)
+        ind = np.arange(N)
+        
+        def format_datetime(x,pos = None):
+            this_ind = np.clip(int(x + 0.5),0,N-1)
+            return x_vals[this_ind].strftime('%Y-%m-%d %H:%M')
+
+        fig,ax = plt.subplots(figsize = (20,8))
+        ax.plot(ind,y_vals)
+        ax.xaxis.set_major_formatter(FuncFormatter(format_datetime))
         ax.set_yticklabels(['{:3.2f}%'.format(x * 100) for x in y_vals])
         ax.grid(True)
+       
     
     
     

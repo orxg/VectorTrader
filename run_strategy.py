@@ -10,7 +10,7 @@ Created on Tue Aug 22 08:33:34 2017
 config = {'base':
     {'start_date':'20170103',
      'end_date':'20170201',
-     'frequency':'20m',
+     'frequency':'1d',
      'capital':100000,
      'universe':['600340']}}
 

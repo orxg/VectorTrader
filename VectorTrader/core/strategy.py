@@ -6,7 +6,7 @@ Created on Sun Aug 20 14:08:57 2017
 """
 
 # strategy.py
-
+import numba as nb
 from ..events import EVENT
 
 class Strategy():

@@ -13,6 +13,60 @@ from VectorTrader.data.data_source.mixed_data_source.mixed_data_source import Mi
 
 mixed_data_source = MixedDataSource()
 
+def get_symbols(symbol):
+    '''
+    获取**当前**全A、指定板块、指数、ST的成分股代码。
+    
+    Parameters
+    -----------
+    symbol 
+        获取类型
+    Returns
+    ----------
+    list 
+        [ticker,...]
+    Notes
+    ---------
+    'A' 
+        全A股
+    'st' 
+        st股票
+    'hs300' 
+        沪深300成分股
+    'cyb' 
+        创业板成分股
+    'sz50' 
+        上证50成分股
+    'A-st' 
+        剔除st股票后的全A股
+    
+    '''
+    return mixed_data_source.get_symbols(symbol)
+
+def get_history(ticker,start_date,end_date,frequency,kind):
+    '''
+    数据接口。
+    数据根据上证交易日进行了补全，没有数据用空值表示。
+		
+    Parameters
+    -----------
+		start_date
+			'20100101'
+		end_date
+			'20150101'
+		frequency 
+			'1d','1m','5m'
+		kind
+			'0' 不复权
+			'1' 后复权
+			'-1' 前复权
+            
+    Returns
+    --------
+		DataFrame (date_time,open_price,high_price,low_price,close_price,volume,amount)
+    '''
+    return mixed_data_source.get_history(ticker,start_date,end_date,frequency,kind)
+
 def get_stocks_basics(ticker_list):
     '''
     获取股票基本信息。包括其所属行业，行业指数代码。
