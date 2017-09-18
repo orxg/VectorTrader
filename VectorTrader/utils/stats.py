@@ -30,7 +30,7 @@ def calc_bar_return(net_value_series):
     '''
     net_value_series_shift = net_value_series.shift(1)    
     return_series = (net_value_series - net_value_series_shift) / net_value_series_shift
-    return return_series
+    return return_series.fillna(0)
 
 @error_control  
 def calc_return_pnl(net_value_series):
@@ -39,7 +39,7 @@ def calc_return_pnl(net_value_series):
     '''
     initial_value = net_value_series[0]
     return_pnl = (net_value_series - initial_value) / initial_value
-    return return_pnl
+    return return_pnl.fillna(0)
 
 @error_control      
 def calc_total_return(net_value_series):
@@ -63,8 +63,12 @@ def calc_sharp_ratio(net_value_series):
     '''    
     bar_return = calc_bar_return(net_value_series)
     annul_return = calc_annul_return(net_value_series)
-    volatility = bar_return.std()
-    return annul_return / volatility
+    date_index = net_value_series.index.date
+    start_date = date_index[0]
+    end_date = date_index[-1]
+    time_delta = (start_date - end_date).days
+    volatility = bar_return.std() 
+    return annul_return / volatility * np.sqrt(time_delta/ 252)
 
 @error_control
 def calc_max_drawdown(net_value_series):

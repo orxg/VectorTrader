@@ -86,13 +86,13 @@ class SimulationBroker():
             ## 交易费用
             if direction == -1:
                 tax = match_amount * match_price * 0.001
-                transfer_fee = int(match_amount/1000) + 1
-                commision_fee = max(match_amount * match_price * 0.0003,5)
+                transfer_fee = int(match_amount/1000 - 0.001) + 1
+                commision_fee = max(match_amount * match_price * 0.003,5)
                 transaction_fee = tax + transfer_fee + commision_fee
             elif direction == 1:
                 tax = 0
-                transfer_fee = int(match_amount/1000) + 1
-                commision_fee = max(match_amount * match_price * 0.0003,5)
+                transfer_fee = int(match_amount/1000 - 0.001) + 1
+                commision_fee = max(match_amount * match_price * 0.003,5)
                 transaction_fee = tax + transfer_fee + commision_fee
             
             fill_order_obj = FillOrder(trading_dt,ticker,match_amount,

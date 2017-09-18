@@ -16,6 +16,9 @@ class Config(object):
         self.data_source = MixedDataSource()
         self.parse_universe()
         
+    def to_dict(self):
+        return self.config
+    
     @property
     def start_date(self):
         return self.config['base']['start_date']

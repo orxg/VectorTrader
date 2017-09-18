@@ -78,8 +78,10 @@ class DataProxy():
         for ticker in universe:
             self._history_data[ticker] = df_2_bar_generator(self.get_history(
                     ticker,start_date,end_date,frequency,'0').fillna(method = 'pad'))
-            self._pregened_history_data[ticker] = self.get_history(ticker,
-                                       adjust_start_date,end_date,frequency,'-1').dropna()
+#==============================================================================
+#             self._pregened_history_data[ticker] = self.get_history(ticker,
+#                                        adjust_start_date,end_date,frequency,'-1').dropna()
+#==============================================================================
             self._dividend_data[ticker] = self.get_dividend(ticker,
                                start_date,end_date)
             self._rights_issue_data[ticker] = self.get_rights_issue(ticker,
@@ -113,7 +115,8 @@ class DataProxy():
         '''
         if self.mode == 'b':
             return next(self._history_data[ticker])
-    
+            
+        
     def get_pre_before_trading_dividend(self,ticker,dt):
         if self.mode == 'b':
             try:

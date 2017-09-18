@@ -73,7 +73,8 @@ class Account():
         self.cash += - direction * amount * match_price - transaction_fee
         self.position.set_position(ticker,new_position)      
         self.order_passed.append((event.calendar_dt,event.trading_dt,
-                                  ticker,amount,direction,match_price))
+                                  ticker,amount,direction,match_price,
+                                  transaction_fee))
         
     def _handle_cancel_order(self,event):
         cancel_reason = event.reason

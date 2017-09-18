@@ -75,14 +75,15 @@ class Analyser():
         self.daily_portfolio_value = self.portfolio_value['total_asset_value']
         self.daily_portfolio_value = self.daily_portfolio_value[self.daily_portfolio_value.index.time == \
                                                           datetime.time(15,0)]
+        self.daily_bar_return = calc_bar_return(self.daily_portfolio_value)
         self.daily_return_pnl = calc_return_pnl(self.daily_portfolio_value)
         # 指标计算
         ## 总收益率
         self.total_return =calc_total_return(self.portfolio_value['total_asset_value'])
         ## 年化收益率
-        self.annul_return = calc_annul_return(self.portfolio_value['total_asset_value'])
+        self.annul_return = calc_annul_return(self.daily_portfolio_value)
         ## SharpRatio
-        self.sharp_ratio = calc_sharp_ratio(self.portfolio_value['total_asset_value'])
+        self.sharp_ratio = calc_sharp_ratio(self.daily_portfolio_value)
         ## 最大回撤相关
         max_dd,max_ddd,max_dd_start_date,\
         max_dd_end_date,max_ddd_start_date,\
@@ -95,7 +96,8 @@ class Analyser():
                                                     'ticker',
                                                     'amount',
                                                     'direction',
-                                                    'match_price'])
+                                                    'match_price',
+                                                    'transaction_fee'])
         self.order_canceled = pd.DataFrame(self.env.account.order_canceled,
                                            columns = ['calendar_dt',
                                                       'trading_dt',
@@ -104,15 +106,18 @@ class Analyser():
                                                       'reason'])        
         # 存储
         report = {}
+        report['Config'] = {}
         report['PnLs'] = {}
         report['Summary'] = OrderedDict()
         report['Record'] = {}
         
+        report['Config'] = self.env.config.to_dict()['base']
         report['PnLs']['bar_return'] = self.bar_return
         report['PnLs']['return_pnl'] = self.return_pnl
         report['PnLs']['daily_return_pnl'] = self.daily_return_pnl
         report['PnLs']['portfolio_value'] = self.portfolio_value
         report['PnLs']['daily_portfolio_value'] = self.daily_portfolio_value
+        report['PnLs']['daily_bar_return'] = self.daily_bar_return
         
         report['Summary']['total_return'] = self.total_return
         report['Summary']['annul_return'] = self.annul_return
@@ -121,8 +126,11 @@ class Analyser():
         report['Summary']['max_drawdown_duration'] = max_ddd
         report['Summary']['max_drawdown_start_date'] = max_dd_start_date
         report['Summary']['max_drawdown_date'] = max_dd_end_date
-        report['Summary']['max_drawdown_end_date'] = max_ddd_end_date
-        
+        report['Summary']['max_drawdown_end_date'] = max_dd_end_date
+        report['Summary']['max_drawdown_duration_start_date'] = \
+            max_ddd_start_date
+        report['Summary']['max_drawdown_duration_end_date'] = \
+            max_ddd_end_date
         report['Record']['order_passed'] = self.order_passed
         report['Record']['order_canceled'] = self.order_canceled
         

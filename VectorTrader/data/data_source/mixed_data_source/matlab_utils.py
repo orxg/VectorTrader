@@ -6,7 +6,7 @@ Created on Fri Aug 25 10:28:49 2017
 """
 
 # matlab_utils.py
-
+import datetime as dt
 import numpy as np
 import pandas as pd
 import matlab.engine
@@ -57,8 +57,12 @@ def get_matlab_history(ticker,start_date,end_date,frequency,kind):
     df['date_time'] = matlab_time_convert(df['num_time'])
     df.drop('num_time',axis = 1,inplace = True)
     df.set_index('date_time',inplace = True)
-    return df
-
+    if frequency[-1] == 'd':
+        return df
+    elif frequency[-1] == 'm':
+        df.index += dt.timedelta(minutes = int(frequency[:-1]))
+        return df
+    
 def get_matlab_dividend(ticker,start_date,end_date):
     pass
 
