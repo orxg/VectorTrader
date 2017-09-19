@@ -6,6 +6,7 @@ Created on Sun Aug 20 14:07:01 2017
 """
 
 # engine.py
+import numba as nb
 from ..events import EVENT,Event
 
 PRE_BEFORE_TRADING = Event(EVENT.PRE_BEFORE_TRADING)

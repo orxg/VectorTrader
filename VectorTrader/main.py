@@ -7,6 +7,7 @@ Created on Sun Aug 20 20:40:35 2017
 
 # main.py
 import datetime
+import numba as nb
 
 from .events import EVENT,Event
 from .environment import Environment
