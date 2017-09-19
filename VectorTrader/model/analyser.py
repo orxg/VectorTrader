@@ -97,6 +97,9 @@ class Analyser():
                                                     'amount',
                                                     'direction',
                                                     'match_price',
+                                                    'tax',
+                                                    'commission_fee',
+                                                    'transfer_fee',
                                                     'transaction_fee'])
         self.order_canceled = pd.DataFrame(self.env.account.order_canceled,
                                            columns = ['calendar_dt',

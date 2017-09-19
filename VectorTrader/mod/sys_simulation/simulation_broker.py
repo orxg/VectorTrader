@@ -59,8 +59,8 @@ class SimulationBroker():
                     
             # 根据当前bar信息进行撮合
             volume = self.env.bar_map.get_latest_bar_value(ticker,'volume')
-            # 默认有10倍成交量才能成交
-            if volume > 10 * amount:
+            # 默认有3倍成交量才能成交
+            if volume > 3 * amount:
                 match_amount = amount
                 match_price = order_price
             else:
@@ -87,16 +87,17 @@ class SimulationBroker():
             if direction == -1:
                 tax = match_amount * match_price * 0.001
                 transfer_fee = int(match_amount/1000 - 0.001) + 1
-                commision_fee = max(match_amount * match_price * 0.003,5)
-                transaction_fee = tax + transfer_fee + commision_fee
+                commission_fee = max(match_amount * match_price * 0.003,5)
+                transaction_fee = tax + transfer_fee + commission_fee
             elif direction == 1:
                 tax = 0
                 transfer_fee = int(match_amount/1000 - 0.001) + 1
-                commision_fee = max(match_amount * match_price * 0.003,5)
-                transaction_fee = tax + transfer_fee + commision_fee
+                commission_fee = max(match_amount * match_price * 0.003,5)
+                transaction_fee = tax + transfer_fee + commission_fee
             
             fill_order_obj = FillOrder(trading_dt,ticker,match_amount,
-                                       direction,transaction_fee,
+                                       direction,tax,commission_fee,
+                                       transfer_fee,transaction_fee,
                                        match_price)
             fill_event = Event(EVENT.FILL_ORDER,calendar_dt = calendar_dt,
                                trading_dt = trading_dt,fill_order = fill_order_obj)

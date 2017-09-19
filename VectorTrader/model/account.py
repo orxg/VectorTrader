@@ -64,6 +64,9 @@ class Account():
         match_price = fill_order.match_price
         amount = fill_order.amount
         direction = fill_order.direction
+        tax = fill_order.tax
+        commission_fee = fill_order.commission_fee
+        transfer_fee = fill_order.transfer_fee
         transaction_fee = fill_order.transaction_fee
         
         origin_position = self.position.get_position(ticker)
@@ -74,6 +77,7 @@ class Account():
         self.position.set_position(ticker,new_position)      
         self.order_passed.append((event.calendar_dt,event.trading_dt,
                                   ticker,amount,direction,match_price,
+                                  tax,commission_fee,transfer_fee,
                                   transaction_fee))
         
     def _handle_cancel_order(self,event):

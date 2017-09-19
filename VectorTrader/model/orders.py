@@ -50,7 +50,9 @@ class Order():
         self.order_price = state['order_price']
         
 class FillOrder():
-    def __init__(self,dt,ticker,amount,direction,transaction_fee,match_price):
+    def __init__(self,dt,ticker,amount,direction,
+                 tax,commission_fee,transfer_fee,
+                 transaction_fee,match_price):
         '''
         Parameters
         ----------
@@ -71,6 +73,9 @@ class FillOrder():
         self.ticker = ticker
         self.amount = amount
         self.direction = direction
+        self.tax = tax
+        self.commission_fee = commission_fee
+        self.transfer_fee = transfer_fee
         self.transaction_fee = transaction_fee
         self.match_price = match_price
         
