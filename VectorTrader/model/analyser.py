@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
 from ..events import EVENT
+from ..constants import MODE
 from ..utils.stats import calc_bar_return,calc_return_pnl,\
                         calc_total_return,calc_annul_return,calc_max_drawdown,\
                         calc_sharp_ratio
@@ -27,10 +28,25 @@ class Analyser():
         self.name = name
         self.path = path
         
-        self.portfolio_net_value = []
-        self.position_record = []        
+        self.portfolio_value = []
+        self.daily_portfolio_value = []
+        self.position = []
+        self.daily_position = []
+                
+        self.history_orders = []
+        self.history_fill_orders = []
+        self.history_rejected_orders = []
+        self.history_kill_orders = []
+        
         self.env.event_bus.add_listener(EVENT.POST_BAR,self._record_post_bar)
-        if self.env.mode == 'p':
+        self.env.event_bus.add_listener(EVENT.PENDING_NEW_ORDER_PASS,self._collect_new_order)
+        self.env.event_bus.add_listener(EVENT.REJECT_ORDER,self._collect_rejected_order)
+        self.env.event_bus.add_listener(EVENT.TRADE,self._collect_fill_order)
+        self.env.event_bus.add_listener(EVENT.KILL_ORDER_PASS,self._collect_kill_order)
+        
+        
+        
+        if self.env.mode == MODE.PAPER_TRADING:
             self.env.event_bus.add_listener(EVENT.POST_SETTLEMENT,self._show_post_settlement)
         
     def get_state(self):
@@ -49,6 +65,18 @@ class Analyser():
         account = self.env.account
         self.portfolio_net_value.append([trading_dt,account.total_asset_value])
         self.position_record.append([trading_dt,account.position.position])
+        
+    def _collect_new_order(self,event):
+        pass
+    
+    def _collect_rejected_order(self,event):
+        pass
+    
+    def _collect_fill_order(self,event):
+        pass
+    
+    def _collect_kill_order(self,event):
+        pass
         
     def _show_post_settlement(self,event):
         self.stats()

@@ -19,20 +19,19 @@ class Account():
         
         self.cash = cash
         self.position = Position()
-        self.total_asset_value = self.cash
+        self.total_account_value = self.cash
         
         self.order_passed = []
         self.order_canceled = []
             
-        self.env.event_bus.add_listener(EVENT.FILL_ORDER,self._handle_fill_order)
-        self.env.event_bus.add_listener(EVENT.CANCEL_ORDER,self._handle_cancel_order)
+        self.env.event_bus.add_listener(EVENT.TRADE,self._handle_fill_order)
         self.env.event_bus.add_listener(EVENT.PRE_BEFORE_TRADING,self._refresh_pre_before_trading)
         self.env.event_bus.add_listener(EVENT.POST_BAR,self._refresh_post_bar) # 确保第一个接收事件
         self.env.event_bus.add_listener(EVENT.SETTLEMENT,self._refresh_settlement)
         
     def get_state(self):
         state_data = {'cash':self.cash,
-                      'total_asset_value':self.total_asset_value,
+                      'total_account_value':self.total_account_value,
                       'position':self.position.get_state(),
                       'order_passed':self.order_passed,
                       'order_canceled':self.order_canceled}
@@ -42,7 +41,7 @@ class Account():
     def set_state(self,state):
         state = pickle.loads(state)
         self.cash = state['cash']
-        self.total_asset_value = state['total_asset_value']
+        self.total_account_value = state['total_account_value']
         self.position.set_state(state['position'])
         self.order_passed = state['order_passed']
         self.order_canceled = state['order_canceled']
@@ -52,13 +51,13 @@ class Account():
         初始化仓位。
         '''
         self.position.set_init_position(position_base,cost_base)
+        self.total_account_value = self.cash + self.position.get_position_value()
         
     def _handle_fill_order(self,event):
         '''
-        监听Broker返回的FillOrder事件。
         仅对仓位和成本进行调整。对市场价值和资产总值不做调整。
         '''
-        fill_order = event.fill_order
+        fill_order = event.order
          
         ticker = fill_order.ticker
         match_price = fill_order.match_price
@@ -76,30 +75,23 @@ class Account():
                                   ticker,amount,direction,match_price,
                                   transaction_fee))
         
-    def _handle_cancel_order(self,event):
-        cancel_reason = event.reason
-        calendar_dt = event.calendar_dt
-        trading_dt = event.trading_dt
-        ticker = event.ticker
-        amount = event.amount
-        
-        self.order_canceled.append((trading_dt,calendar_dt,ticker,amount,
-                                    cancel_reason))
-        
     def _refresh_pre_before_trading(self,event):
         data_proxy = self.env.data_proxy
         
-        # 此处可能效率堪忧
+        ## TODO:优化算法(可读性与效率)
         for ticker in self.env.get_universe():
+            
             # 获取分红配股数据
             dividend = data_proxy.get_pre_before_trading_dividend(ticker,self.env.calendar_dt)
             rights_issue = data_proxy.get_pre_before_trading_rights_issue(ticker,self.env.calendar_dt)
+            
             # 处理分红
             if dividend is not 0:
                 dividend_per_share = dividend['dividend_per_share']
                 multiplier = dividend['multiplier']
                 self.cash += self.position.get_position(ticker) * dividend_per_share
-                self.position.set_position(ticker,self.position.get_position(ticker) * multiplier) 
+                self.position.set_position(ticker,self.position.get_position(ticker) * multiplier)
+                
             # 处理配股
             if rights_issue is not 0:
                 rights_issue_per_stock = rights_issue['rights_issue_per_stock']
@@ -117,28 +109,34 @@ class Account():
                 # 原则:有钱就配,能配多少是多少
                 ## XXX : 写的太多,此处逻辑正确性未测试
                 if transfer_rights_issue_price == 0:
+                    
                     if self.cash >= rights_issue_maximum_cost:
                         self.cash -= rights_issue_maximum_cost
                         self.position.add_position(ticker,rights_issue_stocks)
                     elif self.cash < rights_issue_maximum_cost:
+                        
                         rights_issue_stocks = int(self.cash / rights_issue_price)
                         self.cash -= rights_issue_stocks * rights_issue_price
                         self.position.add_position(ticker,rights_issue_stocks)
                 elif transfer_rights_issue_price > 0:
+                    
                     if self.cash >= (rights_issue_maximum_cost + \
                                      transfer_rights_issue_maximum_cost):
                         self.cash -= rights_issue_maximum_cost + \
                                     transfer_rights_issue_maximum_cost
                         self.position.add_position(ticker,rights_issue_stocks + \
                                                    transfer_rights_issue_stocks)
-                    elif self.cash < (rights_issue_maximum_cost + transfer_rights_issue_maximum_cost) and \
+                    elif self.cash < (rights_issue_maximum_cost + \
+                                      transfer_rights_issue_maximum_cost) and \
                          self.cash >= rights_issue_maximum_cost:
+                             
                         self.cash -= rights_issue_stocks * rights_issue_price
                         self.position.add_position(ticker,rights_issue_stocks)
                         transfer_rights_issue_stocks = int(self.cash / transfer_rights_issue_price)
                         self.cash -= transfer_rights_issue_stocks * transfer_rights_issue_price
                         self.position.add_position(ticker,transfer_rights_issue_stocks)
                     elif self.cash < rights_issue_maximum_cost:
+                        
                         rights_issue_stocks = int(self.cash / rights_issue_price)
                         self.cash -= rights_issue_stocks * rights_issue_price
                         self.position.add_position(ticker,rights_issue_stocks)
@@ -147,7 +145,7 @@ class Account():
         for ticker,value in self.position.position.items():
             close_price = self.env.bar_map.get_latest_bar_value(ticker)
             self.position.set_position_market_value(ticker,value * close_price)
-        self.total_asset_value = self.cash + self.position.get_position_value()
+        self.total_account_value = self.cash + self.position.get_position_value()
         
     def _refresh_settlement(self,event):
         '''

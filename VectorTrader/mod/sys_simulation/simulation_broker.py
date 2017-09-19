@@ -16,8 +16,9 @@ class SimulationBroker():
         self.blotter = []
         
         event_bus = env.event_bus
-        event_bus.add_listener(EVENT.ORDER,self._collect_order)
+        event_bus.add_listener(EVENT.PENDING_NEW_ORDER,self._collect_new_order)
         event_bus.add_listener(EVENT.BAR,self._match_on_bar)
+        event_bus.add_listener(EVENT.KILL_ORDER,self._handle_kill)
         
     def _collect_order(self,event):
         order = event.order

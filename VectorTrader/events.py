@@ -65,34 +65,18 @@ class EVENT(Enum):
     POST_SETTLEMENT = 'post_settlement'
     
     # 订单事件
-    ORDER = 'order'
-    
-    # 成交订单
-    FILL_ORDER = 'fill_order'
-    
-    # 订单取消
-    CANCEL_ORDER = 'cancel_order'
-    
-    # ----------------- 新事件,目前不支持,未来对已有事件进行升级,计划在3.0中支持 ----------------
-    # ----------------- 升级后可以支持更加细腻的策略编写,包括对集合竞价和盘中下单撤单做出决策 ----------------
-    
-    ## 1. 订单部分
-    ## 创建新订单
-    CREATE_NEW_ORDER = 'create_new_order'
+    ## 新订单
+    PENDING_NEW_ORDER = 'pending_new_order'
     ## 创建订单成功
-    CREATE_NEW_ORDER_PASS = 'create_new_order_pass'    
+    PENDING_NEW_ORDER_PASS = 'pending_new_order_pass' 
+    ## 拒绝订单
+    REJECT_ORDER = 'reject_order'
     ## 撤单
     KILL_ORDER = 'kill_order'
     ## 撤单成功
     KILL_ORDER_PASS = 'kill_order_pass'
-    ## 订单撮合成功
+    ## 订单成交
     TRADE = 'trade'    
-    ## 拒绝订单
-    REJECT_ORDER = 'reject_order'
-    
-    ## 2. 集合竞价 
+    ## 集合竞价 
     AUCTION = 'auction'
-    
-
-if __name__ == '__main__':
-    event = Event(EVENT.AFTER_TRADING,calendar_dt = '20150101')       
+     

@@ -39,6 +39,15 @@ class Position():
         for key,value in cost_base.items():
             self.position_cost[key] = value
             
+    def set_position(self,ticker,shares):
+        self.position[ticker] = shares
+        
+    def set_position_available(self,ticker,shares):
+        self.position_available[ticker] = shares
+        
+    def set_position_market_value(self,ticker,value):
+        self.position_market_value[ticker] = value  
+          
     def get_holding_universe(self):
         universe = []
         for key,value in self.position.items():
@@ -65,6 +74,12 @@ class Position():
         except:
             return 0        
         
+    def get_position_cost(self,ticker):
+        try:
+            return self.position_cost[ticker]
+        except:
+            return 0
+        
     def get_position_market_value(self,ticker):
         try:
             return self.position_market_value[ticker]
@@ -77,20 +92,14 @@ class Position():
             total_value += value
         return total_value
     
-    def set_position(self,ticker,shares):
-        self.position[ticker] = shares
-        
-    def set_position_available(self,ticker,shares):
-        self.position_available[ticker] = shares
-        
-    def set_position_market_value(self,ticker,value):
-        self.position_market_value[ticker] = value
-    
     def add_position(self,ticker,shares):
         try:
             self.position[ticker] += shares
         except:
             self.position[ticker] = shares
     
+    def add_position_lot(self,ticker,dt,shares):
+        self.position_lot[ticker].append((dt,shares))
+        
     def __getitem__(self,ticker):
         return self.get_position(ticker)
