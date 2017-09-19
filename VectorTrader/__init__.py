@@ -7,13 +7,14 @@ Created on Tue Aug 22 14:00:35 2017
 
 # __init__.py
 
-import sys
+import yaml
 import os
 
-cwd = os.getcwd() 
-mod_directory = cwd + '\\VectorTrader\\mod\\'
-sys.path.append(cwd)
-sys.path.append(mod_directory)
+package_path = __path__[0]
+etc_path = os.path.join(package_path,'etc.yaml')
+
+with open(etc_path,'r') as f:
+    etc = yaml.load(f)
 
 def run_file(config,strategy_name,strategy_path,mode = 'b',
              persist_path = None,report_path = None):
@@ -33,8 +34,14 @@ def run_file(config,strategy_name,strategy_path,mode = 'b',
         report_path
             回测结果保存地址
     '''
-    
+    if report_path is None:
+        report_path = etc['report_path']
+    if mode == 'p' and persist_path is None:
+        persist_path = etc['persist_path']
+        
     from .main import all_system_go
-    return all_system_go(config,strategy_name,strategy_path,mode,persist_path,report_path)
+    return all_system_go(config,strategy_name,
+                         strategy_path,mode,
+                         persist_path,report_path)
     
 

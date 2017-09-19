@@ -20,9 +20,6 @@ class Account():
         self.cash = cash
         self.position = Position()
         self.total_account_value = self.cash
-        
-        self.order_passed = []
-        self.order_canceled = []
             
         self.env.event_bus.add_listener(EVENT.TRADE,self._handle_fill_order)
         self.env.event_bus.add_listener(EVENT.PRE_BEFORE_TRADING,self._refresh_pre_before_trading)
@@ -32,9 +29,7 @@ class Account():
     def get_state(self):
         state_data = {'cash':self.cash,
                       'total_account_value':self.total_account_value,
-                      'position':self.position.get_state(),
-                      'order_passed':self.order_passed,
-                      'order_canceled':self.order_canceled}
+                      'position':self.position.get_state()}
         state_data = pickle.dumps(state_data)
         return state_data
             
@@ -43,8 +38,6 @@ class Account():
         self.cash = state['cash']
         self.total_account_value = state['total_account_value']
         self.position.set_state(state['position'])
-        self.order_passed = state['order_passed']
-        self.order_canceled = state['order_canceled']
             
     def set_position(self,position_base,cost_base):
         '''
@@ -70,10 +63,7 @@ class Account():
         new_position = origin_position + direction * amount
         
         self.cash += - direction * amount * match_price - transaction_fee
-        self.position.set_position(ticker,new_position)      
-        self.order_passed.append((event.calendar_dt,event.trading_dt,
-                                  ticker,amount,direction,match_price,
-                                  transaction_fee))
+        self.position.set_position(ticker,new_position)
         
     def _refresh_pre_before_trading(self,event):
         data_proxy = self.env.data_proxy

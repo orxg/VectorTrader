@@ -7,7 +7,6 @@ Created on Sun Aug 20 20:40:35 2017
 
 # main.py
 import datetime
-import numba as nb
 
 from .events import EVENT,Event
 from .environment import Environment
@@ -108,6 +107,8 @@ def all_system_go(config,strategy_name,strategy_path,
     if position_base is not None and cost_base is not None:
         account.set_position(position_base,cost_base)
     env.set_account(account) # 此处account要在analyser之前
+    if report_path is None:
+        pass
     env.set_analyser(Analyser(env,strategy_name,report_path))
     print 'Initilizing running environment successfully'.upper()
     
@@ -139,12 +140,11 @@ def all_system_go(config,strategy_name,strategy_path,
     Engine(env).run()
 
     # report
-    env.analyser.stats()
-    env.analyser.show_stats()
+    report = env.analyser.report()
     # 关闭mod
     mod_handler.tear_down()
     
-    return env.analyser.report
+    return report
         
         
     
