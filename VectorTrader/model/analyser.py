@@ -17,10 +17,14 @@ class Analyser():
         self.name = name
         self.path = path
         
+        self.cash = []
+        self.daily_cash = []
         self.portfolio_value = []
         self.daily_portfolio_value = []
         self.position = []
         self.daily_position = []
+        self.position_value = []
+        self.daily_position_value = []
                 
         self.history_orders = []
         self.history_fill_orders = []
@@ -36,10 +40,15 @@ class Analyser():
         
     def get_state(self):
         return pickle.dumps({
+                'config':self.env.config,
+                'cash':self.cash,
+                'daily_cash':self.daily_cash,
                 'portfolio_value':self.portfolio_value,
                 'daily_portfolio_value':self.daily_portfolio_value,
                 'position':self.position,
                 'daily_position':self.daily_position,
+                'position_value':self.position_value,
+                'daily_position_value':self.daily_position_value,
                 'history_orders':self.history_orders,
                 'history_fill_orders':self.history_fill_orders,
                 'history_rejected_orders':self.history_rejected_orders,
@@ -48,10 +57,14 @@ class Analyser():
         
     def set_state(self,state):
         state = pickle.loads(state)
+        self.cash = state['cash']
+        self.daily_cash = state['cash']
         self.portfolio_value = state['portfolio_value']
         self.daily_portfolio_value = state['daily_portfolio_value']
         self.position = state['position']
         self.daily_position = state['daily_position']
+        self.position_value = state['position_value']
+        self.daily_position_value = state['daily_position_value']
         self.history_orders = state['history_orders']
         self.history_fill_orders = state['history_fill_orders']
         self.history_rejected_orders = state['history_rejected_orders']
@@ -61,19 +74,27 @@ class Analyser():
         calendar_dt = self.env.calendar_dt
         trading_dt = self.env.trading_dt
         account = self.env.account
+        self.cash.append([calendar_dt,trading_dt,
+                          account.cash])
         self.portfolio_value.append([calendar_dt,trading_dt,
                                      account.total_account_value])
         self.position.append([calendar_dt,trading_dt,
                               account.position.position])
+        self.position_value.append([calendar_dt,trading_dt,
+                              account.position.get_position_value()])
     
     def _record_daily_settlement(self,event):
         calendar_dt = self.env.calendar_dt
         trading_dt = self.env.trading_dt
         account = self.env.account
+        self.daily_cash.append([calendar_dt,trading_dt,
+                          account.cash])        
         self.daily_portfolio_value.append([calendar_dt,trading_dt,
                                      account.total_account_value])
         self.daily_position.append([calendar_dt,trading_dt,
                               account.position.position])
+        self.daily_position_value.append([calendar_dt,trading_dt,
+                              account.position.get_position_value()])
             
     def _collect_new_order(self,event):
         new_order = event.order

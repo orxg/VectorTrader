@@ -32,8 +32,6 @@ class Environment():
         self.universe = None # 用户初始股票池
         self.dynamic_universe = None # 动态股票池
         
-        self.history_bars = None
-        
     @classmethod
     def get_instance(cls):
         return Environment._env

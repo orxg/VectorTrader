@@ -49,8 +49,8 @@ def all_system_go(config,strategy_name,strategy_path,
         report_path
             回测结果保存地址
     '''
-    config = Config(config)
     env = Environment(config)
+    config = Config(config)
     if mode == 'b':
         MOD_LIST = ['sys_simulation']
         start_date = config.start_date
